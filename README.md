@@ -363,6 +363,35 @@ El frontend se estructura en módulos ES6 independientes con responsabilidades d
   - Gráficos y barras de distribución por categoría y prioridad de incidentes.
   - Métricas de cumplimiento de tiempos de respuesta y tiempos medios de resolución.
 
+---
+
+## 🌐 21. Guía de Ejecución Local del Frontend
+
+Para ejecutar la aplicación cliente e interactuar con el backend:
+
+1. **Asegurar que el backend Spring Boot esté activo:**
+   ```powershell
+   cd project
+   .\gradlew.bat bootRun
+   ```
+   El backend escuchará en `http://localhost:8080`.
+
+2. **Servir la carpeta `frontend/` mediante cualquier servidor HTTP local:**
+   - **Opción A (VS Code Live Server):** Hacer clic derecho sobre `frontend/index.html` y seleccionar *Open with Live Server* (típicamente en puerto 5500).
+   - **Opción B (Python):**
+     ```powershell
+     cd frontend
+     python -m http.server 5500
+     ```
+   - **Opción C (Node.js http-server o npx serve):**
+     ```powershell
+     npx serve frontend -p 5500
+     ```
+
+3. **Acceder a la aplicación:**
+   Abrir el navegador web en `http://localhost:5500` para iniciar sesión y gestionar tickets.
+
+
 
 
 
