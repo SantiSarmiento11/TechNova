@@ -351,6 +351,19 @@ El frontend se estructura en módulos ES6 independientes con responsabilidades d
   - Hilo de comentarios colaborativos en tiempo real con formulario de nuevo aporte.
   - Línea de tiempo interactiva de auditoría (*Audit Timeline*) mostrando cada cambio de estado, fecha y autor.
 
+---
+
+## 📊 20. Vistas de Administración y Supervisión (`admin.html` y `dashboard.html`)
+
+- **Panel de Administración TI (`admin.html` y `admin.js`):**
+  - **Cola de Asignación Manual:** Lista de incidentes en estado `ABIERTA` con selector para asignar un técnico especialista de forma inmediata.
+  - **Distribución de Carga Técnica:** Tabla resumen que detalla la cantidad de tickets asignados por cada técnico activo.
+- **Dashboard de Métricas Analíticas (`dashboard.html` y `dashboard.js`):**
+  - Tarjetas de resumen con indicadores de totales por estado.
+  - Gráficos y barras de distribución por categoría y prioridad de incidentes.
+  - Métricas de cumplimiento de tiempos de respuesta y tiempos medios de resolución.
+
+
 
 
 
