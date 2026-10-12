@@ -434,6 +434,18 @@ Antes de promover los cambios hacia las ramas `develop` y `test`, se realiza la 
 - [x] **Aislamiento por Rol:** Endpoints protegidos impiden IDOR y respetan la jerarquía ADMIN, TECHNICIAN y USER.
 - [x] **Documentación Actualizada:** `README.md` y `ERS TechNova.md` completamente sincronizados con la implementación real del proyecto.
 
+---
+
+## 🔀 25. Rama `develop` — Línea Base de Integración Continua
+
+La rama **`develop`** consolida de forma unificada las contribuciones de las cuatro ramas de desarrollo:
+
+- **`DevSantiago`:** Capa de seguridad Spring Security, autenticación stateless JWT, modelos de dominio JPA, repositorios y script SQL maestro.
+- **`DevJason`:** Lógica de negocio de soporte, catálogos de categorías y prioridades con SLA, máquina de estados finita, comentarios, auditoría y panel analítico de administración.
+- **`DevBrayan`:** Cliente web completo Single Page Application (HTML5, CSS3, Vanilla JS modular), vistas responsivas y refactorización UX.
+- **`DevFabio`:** Especificación formal de requisitos ERS, matriz de trazabilidad y checklist de aseguramiento de calidad (QA).
+
+
 
 
 
