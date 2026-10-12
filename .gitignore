@@ -1,0 +1,194 @@
+# ==============================================================================
+# TechNova IT Helpdesk - .gitignore
+# Contexto: Backend Spring Boot 3.x (Java 17/21), Gradle, PostgreSQL,
+#           Frontend SPA (HTML5/CSS3/Vanilla JS), Docker, JWT, SMTP Mail
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. SEGURIDAD, CONFIGURACIONES Y SECRETOS (CRÍTICO)
+# ------------------------------------------------------------------------------
+# Variables de entorno y secretos del sistema / Docker
+.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.production
+!.env.example
+!.env.template
+
+# Archivos de configuración con credenciales sensibles (Base de datos, JWT, SMTP, etc.)
+*.properties
+*.yml
+*.yaml
+
+# Excepciones: Permitir explícitamente plantillas/ejemplos públicos y Gradle Wrapper
+!gradle-wrapper.properties
+!**/gradle/wrapper/gradle-wrapper.properties
+!*.example.properties
+!*.template.properties
+!*.example.yml
+!*.example.yaml
+!*.template.yml
+!*.template.yaml
+
+# Llaves criptográficas, certificados SSL/TLS, keystores y tokens
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+secrets/
+**/secrets/
+credentials/
+**/credentials/
+
+# ------------------------------------------------------------------------------
+# 2. BACKEND / COMPILACIÓN / GESTOR DE DEPENDENCIAS (Java & Gradle)
+# ------------------------------------------------------------------------------
+# Artefactos y directorios de construcción Gradle
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Wrapper de Gradle (el binario jar debe mantenerse en el repositorio)
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# En caso de soporte futuro para Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Archivos compilados y empaquetados
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Devtools de Spring Boot y reportes
+.spring-boot-devtools.properties
+HELP.md
+
+# Diagnósticos de JVM (crash logs y volcados de memoria)
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# ------------------------------------------------------------------------------
+# 3. BASE DE DATOS Y VOLCADOS (PostgreSQL / Persistencia Local)
+# ------------------------------------------------------------------------------
+*.sql.dump
+*.dump
+*.backup
+*.rdb
+*.db
+*.sqlite
+*.sqlite3
+pgdata/
+**/pgdata/
+
+# ------------------------------------------------------------------------------
+# 4. FRONTEND / HERRAMIENTAS WEB (SPA Vanilla JS / Node / Bundlers)
+# ------------------------------------------------------------------------------
+node_modules/
+dist/
+out-tsc/
+.cache/
+.parcel-cache/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ------------------------------------------------------------------------------
+# 5. DOCKER Y ARCHIVOS LOCALES DE CONTENEDORES
+# ------------------------------------------------------------------------------
+docker-compose.override.yml
+docker-compose.override.yaml
+.docker/
+
+# ------------------------------------------------------------------------------
+# 6. LOGS Y ARCHIVOS TEMPORALES
+# ------------------------------------------------------------------------------
+logs/
+**/logs/
+*.log
+*.tmp
+*.temp
+
+# ------------------------------------------------------------------------------
+# 7. ENTORNOS DE DESARROLLO (IDEs) Y EDITORES DE CÓDIGO
+# ------------------------------------------------------------------------------
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# Eclipse / STS (Spring Tool Suite)
+.classpath
+.project
+.settings/
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ------------------------------------------------------------------------------
+# 8. ARCHIVOS DEL SISTEMA OPERATIVO
+# ------------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+
+# AGY
+
+GEMINI.md
