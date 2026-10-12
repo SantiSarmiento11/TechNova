@@ -391,6 +391,24 @@ Para ejecutar la aplicación cliente e interactuar con el backend:
 3. **Acceder a la aplicación:**
    Abrir el navegador web en `http://localhost:5500` para iniciar sesión y gestionar tickets.
 
+---
+
+## 📋 22. Especificación y Cumplimiento de Requisitos ERS
+
+El desarrollo del sistema responde directamente a los requerimientos funcionales aprobados en [ERS TechNova.md](file:///C:/Users/Santiago%20Sarmiento/Desktop/TechNova/ERS%20TechNova.md):
+
+| Código | Requisito Funcional | Implementación Backend | Interfaz Frontend | Estado |
+| :--- | :--- | :--- | :--- | :--- |
+| **RF-01** | Autenticación y Autorización | `AuthController`, `JwtUtils`, Spring Security | `index.html`, `js/pages/auth.js` | ✅ Conforme |
+| **RF-02** | Creación de Tickets | `TicketController.createTicket` | Modal en `tickets.html`, `tickets.js` | ✅ Conforme |
+| **RF-03** | Asignación Manual | `TicketController.assignTechnician` | Modal en `ticket-detail.html`, `admin.html` | ✅ Conforme |
+| **RF-04** | Ciclo de Vida y Máquina de Estados | `TicketStateMachineService` | Botones contextuales en `ticket-detail.html` | ✅ Conforme |
+| **RF-05** | Comentarios e Historial | `CommentController`, `TicketHistory` | Hilo de chat y timeline en `ticket.js` | ✅ Conforme |
+| **RF-06** | Notificaciones / Trazabilidad | Registro inmutable de auditoría en BD | Indicadores y estados en interfaz | ✅ Conforme |
+| **RF-07** | Dashboard de Administración | `AdminDashboardController` | Panel analítico en `dashboard.html` | ✅ Conforme |
+| **RF-08** | Filtros y Búsqueda Avanzada | JPA Criteria en `TicketSpecification` | Barra de filtros en `tickets.html` | ✅ Conforme |
+
+
 
 
 
