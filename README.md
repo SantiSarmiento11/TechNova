@@ -445,6 +445,20 @@ La rama **`develop`** consolida de forma unificada las contribuciones de las cua
 - **`DevBrayan`:** Cliente web completo Single Page Application (HTML5, CSS3, Vanilla JS modular), vistas responsivas y refactorización UX.
 - **`DevFabio`:** Especificación formal de requisitos ERS, matriz de trazabilidad y checklist de aseguramiento de calidad (QA).
 
+---
+
+## 🧪 26. Rama `test` — Entorno de Certificación Pre-Productiva (QA)
+
+La rama **`test`** actúa como compuerta de aseguramiento de calidad antes de cualquier promoción a la rama de producción `main`:
+
+- **Certificación de Pruebas:**
+  - Ejecución integral y aprobación al 100% de las suites: `AuthControllerTest`, `TicketControllerTest`, `CommentControllerTest`, `TicketFilterAndHistoryTest`, `AdminDashboardControllerTest` y `ProjectApplicationTests`.
+- **Auditoría de Seguridad y Secretos:**
+  - Inspección de commits confirmando la ausencia de credenciales reales, tokens o archivos `.env`/`application.yaml`.
+- **Estado de Aprobación:**
+  - Conforme para liberación productiva en `main` bajo la versión `v1.0.0`.
+
+
 
 
 
