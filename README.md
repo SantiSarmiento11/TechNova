@@ -260,6 +260,20 @@ La plataforma facilita la comunicación bidireccional entre el solicitante y el 
   - Impide comentarios una vez que el ticket se encuentra en estado `CERRADA`.
 - `GET /api/tickets/{id}/comments`: Recuperar el hilo cronológico de comentarios asociados al ticket con marcas de tiempo y datos del autor.
 
+---
+
+## 📊 14. Panel de Control Analítico de Administración (RF-07)
+
+El endpoint administrativo centraliza los indicadores clave de rendimiento (KPIs) para la gerencia de TI:
+
+- `GET /api/admin/dashboard`: Retorna métricas globales consolidadas:
+  - **Métricas por Estado:** Conteo de tickets clasificados por cada estado del ciclo de vida.
+  - **Distribución por Prioridad:** Porcentaje y volumen de incidencias agrupadas por `ALTA`, `MEDIA` y `BAJA`.
+  - **Distribución por Categoría:** Desglose temático de fallas operativas reportadas.
+  - **Carga de Trabajo por Técnico:** Distribución de tickets activos por cada especialista asignado.
+  - **Tiempos Promedio de Resolución:** Medición en horas del tiempo promedio transcurrido desde la creación hasta el estado `RESUELTA`.
+
+
 
 
 
