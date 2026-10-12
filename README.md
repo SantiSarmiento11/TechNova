@@ -207,3 +207,32 @@ La plataforma expone endpoints para consultar los catálogos maestros requeridos
   - **BAJA:** Tiempo máximo de resolución: **24 horas**.
 - `GET /api/users/technicians`: Lista de especialistas con rol `TECHNICIAN` disponibles para asignación (restringido a usuarios autenticados con rol `ADMIN`).
 
+---
+
+## 🔄 11. Máquina de Estados y Ciclo de Vida de Tickets
+
+El flujo de vida de un ticket está regido por una máquina de estados finita con validación programática estricta en backend (`TicketStateMachineService`), garantizando las reglas de negocio **RN-01** y **RN-02**:
+
+```
+[ABIERTA] --(Asignación manual por ADMIN)--> [ASIGNADA]
+    │
+    └──>(Inicio de labores por TECHNICIAN)--> [EN_PROCESO]
+            │
+            └──>(Solución por TECHNICIAN)--> [RESUELTA]
+                    │
+                    └──>(Conformidad USER / Cierre ADMIN)--> [CERRADA]
+```
+
+### Tabla de Transiciones Permitidas:
+
+| Estado Origen | Estado Destino | Rol Autorizado | Acción / Evento |
+| :--- | :--- | :--- | :--- |
+| *(Creación)* | `ABIERTA` | `USER` / `ADMIN` | Registro inicial del incidente. |
+| `ABIERTA` | `ASIGNADA` | `ADMIN` | Asignación manual de especialista técnico. |
+| `ASIGNADA` | `EN_PROCESO` | `TECHNICIAN` (Asignado) / `ADMIN` | Inicio formal del trabajo de diagnóstico o soporte. |
+| `EN_PROCESO` | `RESUELTA` | `TECHNICIAN` (Asignado) / `ADMIN` | Registro de solución técnica aplicada. |
+| `RESUELTA` | `CERRADA` | `USER` (Solicitante) / `ADMIN` | Conformidad del usuario final con el servicio. |
+
+Cualquier transición no listada arroja una excepción `InvalidStatusTransitionException` retornando HTTP 400 Bad Request.
+
+
