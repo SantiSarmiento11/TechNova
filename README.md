@@ -305,6 +305,27 @@ La interfaz de usuario está construida como una **Single Page Application (SPA)
 - **Configuración de Red (`frontend/js/config.js`):**
   - Define `API_BASE` (`http://localhost:8080`) permitiendo personalización dinámica en tiempo de ejecución mediante la variable global `window.TECHNOVA_API_BASE`.
 
+---
+
+## ⚡ 17. Módulos Cliente y Gestión de Sesión
+
+El frontend se estructura en módulos ES6 independientes con responsabilidades delimitadas:
+
+- **Cliente HTTP (`frontend/js/api.js`):**
+  - Wrapper sobre la API estándar `fetch`.
+  - Inyecta automáticamente el token de autenticación (`Authorization: Bearer <token>`) en cada petición saliente.
+  - Gestión centralizada de errores HTTP y formateo de respuestas JSON.
+- **Gestión de Sesión (`frontend/js/session.js`):**
+  - Almacena de forma segura el token JWT y el perfil de usuario en `localStorage`.
+  - Provee funciones de validación de permisos: `hasRole('ADMIN')`, `can('TICKET_ASSIGN')`, `getUser()`, y `logout()`.
+- **Componentes UI Dinámicos (`frontend/js/ui.js`):**
+  - Sistema de modales accesibles (`openDialog`, `closeDialog`).
+  - Notificaciones emergentes (*toasts*) no intrusivas para retroalimentación operativa.
+  - Utilidades de renderizado seguro contra XSS (`escapeHtml`), formateo de fechas y plantillas de formulario.
+- **Layout y Shell Global (`frontend/js/layout.js`):**
+  - Inyecta dinámicamente la barra de navegación superior y el menú lateral según el rol activo del usuario autenticado.
+
+
 
 
 
