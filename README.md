@@ -337,6 +337,21 @@ El frontend se estructura en módulos ES6 independientes con responsabilidades d
   - Almacena el token recibido y el objeto de perfil mediante `setSession()`.
   - Redirecciona de forma inteligente según el rol del usuario: administradores a `/admin.html` o `/tickets.html`, y empleados a `/tickets.html`.
 
+---
+
+## 🎫 19. Vistas de Gestión y Detalle de Incidentes
+
+- **Catálogo de Tickets (`frontend/tickets.html` y `tickets.js`):**
+  - Panel de filtros dinámicos por estado, prioridad, categoría y búsqueda en tiempo real.
+  - Tabla responsiva con paginación interactiva (página actual, total de elementos, selector de tamaño).
+  - Modal para registro de nueva solicitud (`Nueva Solicitud de Soporte`) con selector dinámico de categoría y prioridad.
+- **Detalle de Incidente (`frontend/ticket-detail.html` y `ticket.js`):**
+  - Visualización del solicitante, técnico asignado, nivel de prioridad y estado actual.
+  - Botones contextuales según rol para ejecutar transiciones de estado permitidas por la máquina de estados.
+  - Hilo de comentarios colaborativos en tiempo real con formulario de nuevo aporte.
+  - Línea de tiempo interactiva de auditoría (*Audit Timeline*) mostrando cada cambio de estado, fecha y autor.
+
+
 
 
 
