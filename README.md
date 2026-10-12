@@ -273,6 +273,25 @@ El endpoint administrativo centraliza los indicadores clave de rendimiento (KPIs
   - **Carga de Trabajo por Técnico:** Distribución de tickets activos por cada especialista asignado.
   - **Tiempos Promedio de Resolución:** Medición en horas del tiempo promedio transcurrido desde la creación hasta el estado `RESUELTA`.
 
+---
+
+## 🧪 15. Suites de Pruebas Integradas (Tickets, Auditoría y Dashboard)
+
+Para ejecutar la totalidad de pruebas automatizadas del módulo de tickets y analíticas:
+```powershell
+cd project
+# Ejecutar pruebas completas de tickets
+.\gradlew.bat test --tests "tech.com.project.TicketControllerTest"
+# Ejecutar pruebas de comentarios y validaciones
+.\gradlew.bat test --tests "tech.com.project.CommentControllerTest"
+# Ejecutar pruebas de filtros multicriterio y trazabilidad histórica
+.\gradlew.bat test --tests "tech.com.project.TicketFilterAndHistoryTest"
+# Ejecutar pruebas del panel analítico administrativo
+.\gradlew.bat test --tests "tech.com.project.AdminDashboardControllerTest"
+```
+Todas las suites ejecutan pruebas end-to-end con `MockMvc` simulando usuarios autenticados mediante tokens JWT y verificando códigos HTTP, serialización de DTOs y validaciones de integridad de base de datos.
+
+
 
 
 
