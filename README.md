@@ -249,5 +249,17 @@ Cualquier transición no listada arroja una excepción `InvalidStatusTransitionE
 - `PUT /api/tickets/{id}/status`: Actualización programática del estado validada por la máquina de estados.
 - `GET /api/tickets/{id}/history`: Historial inmutable de auditoría con la línea de tiempo de cambios de estado y usuario autor.
 
+---
+
+## 💬 13. Comentarios Colaborativos e Interacción Técnica (RF-05)
+
+La plataforma facilita la comunicación bidireccional entre el solicitante y el equipo técnico:
+
+- `POST /api/tickets/{id}/comments`: Publicar un comentario en un ticket abierto o en atención.
+  - Valida que el autor sea el solicitante (`USER`), el técnico asignado (`TECHNICIAN`) o un `ADMIN`.
+  - Impide comentarios una vez que el ticket se encuentra en estado `CERRADA`.
+- `GET /api/tickets/{id}/comments`: Recuperar el hilo cronológico de comentarios asociados al ticket con marcas de tiempo y datos del autor.
+
+
 
 
