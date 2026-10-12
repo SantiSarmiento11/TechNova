@@ -193,3 +193,17 @@ El archivo `auth-tests.http` contiene las peticiones HTTP listas para ejecutar d
 Con el backend en ejecución, la documentación de la API y especificación OpenAPI 3 se encuentra disponible en:
 - **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
 - **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+
+---
+
+## 🗂️ 10. Catálogos Operativos y Matriz SLA
+
+La plataforma expone endpoints para consultar los catálogos maestros requeridos durante el registro y asignación de incidentes:
+
+- `GET /api/categories`: Lista de categorías activas (`HARDWARE`, `SOFTWARE`, `RED`, `ACCESO`).
+- `GET /api/priorities`: Catálogo de prioridades con tiempos de respuesta SLA:
+  - **ALTA:** Tiempo máximo de resolución: **2 horas**.
+  - **MEDIA:** Tiempo máximo de resolución: **8 horas**.
+  - **BAJA:** Tiempo máximo de resolución: **24 horas**.
+- `GET /api/users/technicians`: Lista de especialistas con rol `TECHNICIAN` disponibles para asignación (restringido a usuarios autenticados con rol `ADMIN`).
+
