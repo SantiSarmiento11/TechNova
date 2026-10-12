@@ -325,6 +325,19 @@ El frontend se estructura en módulos ES6 independientes con responsabilidades d
 - **Layout y Shell Global (`frontend/js/layout.js`):**
   - Inyecta dinámicamente la barra de navegación superior y el menú lateral según el rol activo del usuario autenticado.
 
+---
+
+## 🔑 18. Interfaz de Autenticación (`frontend/index.html` y `auth.js`)
+
+- **Pantalla de Inicio de Sesión (`index.html`):**
+  - Formulario de credenciales con validación reactiva de formato de correo electrónico y contraseña.
+  - Alerta dinámica de expiración de sesión (`?expired=true`).
+- **Controlador de Autenticación (`frontend/js/pages/auth.js`):**
+  - Consume el endpoint `POST /api/auth/login`.
+  - Almacena el token recibido y el objeto de perfil mediante `setSession()`.
+  - Redirecciona de forma inteligente según el rol del usuario: administradores a `/admin.html` o `/tickets.html`, y empleados a `/tickets.html`.
+
+
 
 
 
