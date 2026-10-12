@@ -291,6 +291,21 @@ cd project
 ```
 Todas las suites ejecutan pruebas end-to-end con `MockMvc` simulando usuarios autenticados mediante tokens JWT y verificando códigos HTTP, serialización de DTOs y validaciones de integridad de base de datos.
 
+---
+
+## 🎨 16. Frontend SPA — Arquitectura y Sistema de Diseño
+
+La interfaz de usuario está construida como una **Single Page Application (SPA)** responsiva desarrollada con estándares web nativos sin librerías externas ni empaquetadores complejos:
+
+- **Filosofía Vanilla:** HTML5 semántico, CSS3 moderno y Vanilla JavaScript modular (ES6+ Modules).
+- **Sistema de Diseño (`frontend/css/styles.css`):**
+  - Paleta de colores institucional basada en tonos esmeralda y cian (`--primary: #1b7f79`, `--teal-dark: #125551`).
+  - Variables CSS para consistencia en espaciados, bordes, sombras y tipografía accesible.
+  - Componentes reutilizables: botones estilizados, badges de estado del ticket (`badge-abierta`, `badge-asignada`, etc.), tarjetas elevadas, formularios y tablas responsivas con soporte para colapso en pantallas móviles.
+- **Configuración de Red (`frontend/js/config.js`):**
+  - Define `API_BASE` (`http://localhost:8080`) permitiendo personalización dinámica en tiempo de ejecución mediante la variable global `window.TECHNOVA_API_BASE`.
+
+
 
 
 
