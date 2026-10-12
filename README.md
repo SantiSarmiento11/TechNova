@@ -421,6 +421,20 @@ El diseño del sistema cumple con los estándares no funcionales de la ingenier�
 - **RT-05 — Usabilidad:** Interfaz web SPA intuitiva, adaptada a pantallas móviles y de escritorio, con tiempos de aprendizaje mínimos.
 - **RT-06 — Mantenibilidad:** Separación estricta de responsabilidades en capas (Controller $\rightarrow$ Service $\rightarrow$ Repository), uso de DTOs para aislar el modelo de datos de la capa web y manejo global unificado de excepciones (`GlobalExceptionHandler`).
 
+---
+
+## ✅ 24. Checklist de Control de Calidad y Auditoría Pre-Productiva (QA)
+
+Antes de promover los cambios hacia las ramas `develop` y `test`, se realiza la siguiente lista de verificación:
+
+- [x] **Compilación Limpia:** Compilación de código backend sin warnings críticos ni errores de sintaxis (`./gradlew compileJava`).
+- [x] **Suites de Pruebas Automatizadas:** 100% de tests unitarios y de integración aprobados en `./gradlew test`.
+- [x] **Seguridad de Secretos:** Exclusión total de `.env` y `application.yaml` mediante `.gitignore`.
+- [x] **Reglas de Negocio Validadas:** Máquina de estados (RN-02) rechaza transiciones ilegales y la matriz SLA (RN-03) calcula prioridades correctamente.
+- [x] **Aislamiento por Rol:** Endpoints protegidos impiden IDOR y respetan la jerarquía ADMIN, TECHNICIAN y USER.
+- [x] **Documentación Actualizada:** `README.md` y `ERS TechNova.md` completamente sincronizados con la implementación real del proyecto.
+
+
 
 
 
