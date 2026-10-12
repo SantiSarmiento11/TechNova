@@ -235,4 +235,19 @@ El flujo de vida de un ticket está regido por una máquina de estados finita co
 
 Cualquier transición no listada arroja una excepción `InvalidStatusTransitionException` retornando HTTP 400 Bad Request.
 
+---
+
+## 🎫 12. Endpoints de Gestión Core de Tickets (RF-02, RF-03, RF-04)
+
+- `POST /api/tickets`: Creación de solicitudes de soporte (`USER`, `ADMIN`). Recibe título, descripción, `categoryId` y `priorityId`.
+- `GET /api/tickets`: Listado paginado y con filtros dinámicos (categoría, prioridad, estado, fechas, búsqueda).
+  - Los usuarios con rol `USER` solo pueden visualizar sus tickets propios.
+  - Los usuarios `TECHNICIAN` visualizan tickets asignados a su persona o en cola.
+  - Los usuarios `ADMIN` visualizan la totalidad de solicitudes.
+- `GET /api/tickets/{id}`: Obtener el detalle completo del incidente con asignación y marcas de tiempo.
+- `PUT /api/tickets/{id}/assign`: Asignación manual de técnico a un ticket (`ADMIN` únicamente). Transiciona el estado a `ASIGNADA`.
+- `PUT /api/tickets/{id}/status`: Actualización programática del estado validada por la máquina de estados.
+- `GET /api/tickets/{id}/history`: Historial inmutable de auditoría con la línea de tiempo de cambios de estado y usuario autor.
+
+
 
