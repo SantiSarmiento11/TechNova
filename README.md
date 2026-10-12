@@ -97,3 +97,31 @@ main  <--  test  <--  develop  <--  Dev(Santiago, Jason, Brayan, Fabio)
 > **No subir credenciales ni secretos a Git**:
 > - Archivos como `.env` y `application.yaml` que contienen credenciales reales de base de datos o claves JWT **están expresamente ignorados** en `.gitignore`.
 > - Se debe utilizar siempre `.env.example` y `application.example.yaml` como referencia para crear las configuraciones locales.
+
+---
+
+## 🏛️ 6. Modelo de Dominio y Persistencia (JPA & PostgreSQL)
+
+El modelo de datos implementa las reglas de negocio descritas en la ERS:
+
+| Entidad JPA | Tabla SQL | Descripción |
+| :--- | :--- | :--- |
+| `UserAccount` | `user_account` | Usuarios del sistema con credenciales encriptadas en BCrypt. |
+| `Role` | `role` | Catálogo de roles de seguridad (`ADMIN`, `TECHNICIAN`, `USER`). |
+| `Permission` | `permission` | Permisos atómicos del sistema (`TICKET_READ`, `TICKET_CREATE`, etc.). |
+| `UserRole` | `user_role` | Asociación muchos a muchos entre usuarios y roles. |
+| `RolePermission` | `role_permission` | Matriz de privilegios otorgados a cada rol. |
+| `Category` | `category` | Categorías de soporte técnico (`HARDWARE`, `SOFTWARE`, `RED`, `ACCESO`). |
+| `Priority` | `priority` | Prioridades y SLA: `ALTA` (2h), `MEDIA` (8h), `BAJA` (24h). |
+| `TicketStatus` | `ticket_status` | Estados del ticket: `ABIERTA`, `ASIGNADA`, `EN_PROCESO`, `RESUELTA`, `CERRADA`. |
+| `StatusTransition` | `status_transition` | Matriz permitida de transiciones de estados del ciclo de vida. |
+| `Ticket` | `ticket` | Solicitud principal de soporte asociada a solicitante, categoría y prioridad. |
+| `TicketAssignment` | `ticket_assignment` | Histórico de asignaciones y reasignaciones de técnicos por el ADMIN. |
+| `TicketHistory` | `ticket_history` | Registro inmutable de auditoría de cada cambio de estado. |
+| `Comment` | `comment` | Comentarios e intercambios entre usuarios y técnicos en un ticket. |
+
+### Inicialización y Seeding
+El sistema cuenta con:
+1. `DataInitializer.java`: Componente `CommandLineRunner` que asegura la creación de roles, permisos, categorías, prioridades, transiciones y usuarios predeterminados de prueba si las tablas están vacías.
+2. `technova_schema_and_data.sql`: Script DDL/DML para aprovisionamiento manual o en entornos de base de datos PostgreSQL independientes.
+
