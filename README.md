@@ -149,4 +149,47 @@ La capa de seguridad está desacoplada y diseñada bajo una arquitectura statele
 - **Manejo Centralizado de Excepciones:**
   - Respuestas JSON uniformes (`ApiErrorResponse`) con timestamp, código de estado HTTP, mensaje de error y ruta.
 
+---
 
+## ⚙️ 8. Variables de Entorno y Configuración Local
+
+Para ejecutar el microservicio localmente sin comprometer credenciales en Git:
+
+1. **Crear archivo `.env`** en la raíz del repositorio basándose en `.env.example`:
+   ```bash
+   SERVER_PORT=8080
+   SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/TechNovaTest
+   SPRING_DATASOURCE_USERNAME=admin
+   SPRING_DATASOURCE_PASSWORD=admin123
+   JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+   JWT_EXPIRATION_MS=86400000
+   ```
+2. **Crear archivo `application.yaml`** en `project/src/main/resources/` basándose en `application.example.yaml`. Ambos archivos están protegidos contra commits mediante `.gitignore`.
+
+---
+
+## 🧪 9. Verificación, Pruebas y Swagger UI
+
+### Pruebas Automatizadas con Gradle
+Para compilar y ejecutar las pruebas unitarias y de integración de la capa de autenticación:
+```powershell
+cd project
+.\gradlew.bat test --tests "tech.com.project.AuthControllerTest"
+```
+La suite `AuthControllerTest` valida:
+- Autenticación exitosa con credenciales válidas y generación de JWT válido.
+- Rechazo de credenciales inválidas (401 Unauthorized).
+- Acceso denegado a endpoints protegidos sin token.
+- Control de acceso basado en roles (ADMIN vs TECHNICIAN vs USER) sobre `/api/auth-demo/*`.
+
+### Pruebas Manuales con REST Client / HTTP
+El archivo `auth-tests.http` contiene las peticiones HTTP listas para ejecutar desde Visual Studio Code (extensión REST Client) o IntelliJ IDEA HTTP Client:
+- Login como Administrador (`admin@technova.com`).
+- Login como Técnico (`tecnico@technova.com`).
+- Login como Usuario final (`usuario@technova.com`).
+- Pruebas de consumo de endpoints protegidos con token Bearer.
+
+### Documentación Interactiva (Swagger UI)
+Con el backend en ejecución, la documentación de la API y especificación OpenAPI 3 se encuentra disponible en:
+- **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
+- **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`

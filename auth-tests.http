@@ -1,0 +1,133 @@
+### ==============================================================================
+### TechNova IT Helpdesk - Suite de Pruebas de Autenticación y Autorización (RF-01)
+### ==============================================================================
+### Este archivo puede ejecutarse directamente en VS Code con la extensión "REST Client"
+### o en el cliente HTTP integrado de IntelliJ IDEA / Aqua / Fleet.
+### ==============================================================================
+
+@baseUrl = http://localhost:8080
+
+### ------------------------------------------------------------------------------
+### 1. LOGIN EXITOSO - ROL ADMIN
+### ------------------------------------------------------------------------------
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@technova.com",
+  "password": "admin123"
+}
+
+### Guardar Token del Admin
+@adminToken = {{loginAdmin.response.body.token}}
+
+### ------------------------------------------------------------------------------
+### 2. LOGIN EXITOSO - ROL TECHNICIAN
+### ------------------------------------------------------------------------------
+# @name loginTechnician
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "tecnico@technova.com",
+  "password": "admin123"
+}
+
+### Guardar Token del Técnico
+@techToken = {{loginTechnician.response.body.token}}
+
+### ------------------------------------------------------------------------------
+### 3. LOGIN EXITOSO - ROL USER
+### ------------------------------------------------------------------------------
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@technova.com",
+  "password": "admin123"
+}
+
+### Guardar Token del Usuario Solicitante
+@userToken = {{loginUser.response.body.token}}
+
+
+### ==============================================================================
+### PRUEBAS NEGATIVAS DE AUTENTICACIÓN (MANEJO DE ERRORES)
+### ==============================================================================
+
+### 4. LOGIN FALLIDO - CONTRASEÑA INCORRECTA (Debe retornar 401 Unauthorized)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@technova.com",
+  "password": "password_incorrecta"
+}
+
+### 5. LOGIN FALLIDO - USUARIO INEXISTENTE (Debe retornar 401 Unauthorized)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "noexiste@technova.com",
+  "password": "admin123"
+}
+
+### 6. LOGIN FALLIDO - CAMPOS INVÁLIDOS (Debe retornar 400 Bad Request)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "correo-no-valido",
+  "password": ""
+}
+
+
+### ==============================================================================
+### PRUEBAS DE CONSULTA DE PERFIL (/api/auth/me) Y VALIDACIÓN DE TOKEN
+### ==============================================================================
+
+### 7. CONSULTAR PERFIL CON TOKEN ADMIN (Debe retornar 200 OK)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{adminToken}}
+
+### 8. CONSULTAR PERFIL CON TOKEN USER (Debe retornar 200 OK)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{userToken}}
+
+### 9. CONSULTAR PERFIL SIN TOKEN (Criterio CA-002: Debe retornar 401 Unauthorized)
+GET {{baseUrl}}/api/auth/me
+
+### 10. CONSULTAR PERFIL CON TOKEN INVÁLIDO O CORRUPTO (Debe retornar 401 Unauthorized)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer token_falso_o_corrupto_12345
+
+
+### ==============================================================================
+### PRUEBAS DE CONTROL DE ACCESO BASADO EN ROLES (RBAC / @PreAuthorize)
+### ==============================================================================
+
+### 11. ENDPOINT PÚBLICO (No requiere token - Debe retornar 200 OK)
+GET {{baseUrl}}/api/auth/demo/public
+
+### 12. ACCESO A RECURSO DE ADMINISTRADOR CON TOKEN ADMIN (Debe retornar 200 OK)
+GET {{baseUrl}}/api/auth/demo/admin
+Authorization: Bearer {{adminToken}}
+
+### 13. ACCESO A RECURSO DE ADMINISTRADOR CON TOKEN USER (Debe retornar 403 Forbidden)
+GET {{baseUrl}}/api/auth/demo/admin
+Authorization: Bearer {{userToken}}
+
+### 14. ACCESO A RECURSO DE TÉCNICO CON TOKEN TECHNICIAN (Debe retornar 200 OK)
+GET {{baseUrl}}/api/auth/demo/technician
+Authorization: Bearer {{techToken}}
+
+### 15. ACCESO A RECURSO DE TÉCNICO CON TOKEN USER (Debe retornar 403 Forbidden)
+GET {{baseUrl}}/api/auth/demo/technician
+Authorization: Bearer {{userToken}}
+
+### 16. ACCESO A RECURSO DE USUARIO CON TOKEN USER (Debe retornar 200 OK)
+GET {{baseUrl}}/api/auth/demo/user
+Authorization: Bearer {{userToken}}
