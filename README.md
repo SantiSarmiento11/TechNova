@@ -408,6 +408,20 @@ El desarrollo del sistema responde directamente a los requerimientos funcionales
 | **RF-07** | Dashboard de Administración | `AdminDashboardController` | Panel analítico en `dashboard.html` | ✅ Conforme |
 | **RF-08** | Filtros y Búsqueda Avanzada | JPA Criteria en `TicketSpecification` | Barra de filtros en `tickets.html` | ✅ Conforme |
 
+---
+
+## 🛡️ 23. Atributos de Calidad y Requisitos Técnicos (RT-01 a RT-06)
+
+El diseño del sistema cumple con los estándares no funcionales de la ingeniería de software:
+
+- **RT-01 — Rendimiento:** Respuestas rápidas de la API REST optimizadas con `@EntityGraph` para prevenir el problema de consultas $N+1$ en Hibernate.
+- **RT-02 — Seguridad:** Arquitectura de autenticación *stateless* basada en tokens JWT con algoritmo criptográfico HS256, contraseñas hasheadas con BCrypt y control estricto de acceso basado en roles (`RBAC`).
+- **RT-03 — Disponibilidad:** Gestión eficiente de conexiones a base de datos mediante el pool HikariCP de alto rendimiento.
+- **RT-04 — Escalabilidad:** Microservicio modular sin estado de sesión en servidor, preparado para escalado horizontal y empaquetamiento en contenedores Docker.
+- **RT-05 — Usabilidad:** Interfaz web SPA intuitiva, adaptada a pantallas móviles y de escritorio, con tiempos de aprendizaje mínimos.
+- **RT-06 — Mantenibilidad:** Separación estricta de responsabilidades en capas (Controller $\rightarrow$ Service $\rightarrow$ Repository), uso de DTOs para aislar el modelo de datos de la capa web y manejo global unificado de excepciones (`GlobalExceptionHandler`).
+
+
 
 
 
