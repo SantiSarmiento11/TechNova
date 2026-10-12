@@ -125,3 +125,28 @@ El sistema cuenta con:
 1. `DataInitializer.java`: Componente `CommandLineRunner` que asegura la creación de roles, permisos, categorías, prioridades, transiciones y usuarios predeterminados de prueba si las tablas están vacías.
 2. `technova_schema_and_data.sql`: Script DDL/DML para aprovisionamiento manual o en entornos de base de datos PostgreSQL independientes.
 
+---
+
+## 🔐 7. Seguridad, Autenticación y Control de Acceso (JWT & Spring Security)
+
+La capa de seguridad está desacoplada y diseñada bajo una arquitectura stateless basada en tokens:
+
+- **Algoritmo de Firma:** HMAC-SHA256 (HS256) configurado con secreto criptográfico de 256 bits.
+- **Expiración de Tokens:** 24 horas (86,400,000 ms) por defecto.
+- **Claims del Token:**
+  - `sub`: Correo electrónico institucional del usuario autenticado.
+  - `userId`: Identificador numérico del usuario en base de datos.
+  - `roles`: Colección de roles asignados (`ROLE_ADMIN`, `ROLE_TECHNICIAN`, `ROLE_USER`).
+  - `permissions`: Privilegios granulares asociados (`TICKET_READ`, `TICKET_CREATE`, `TICKET_ASSIGN`, etc.).
+- **Filtro de Intercepción (`JwtAuthenticationFilter`):**
+  - Intercepta cada solicitud HTTP entrante buscando la cabecera `Authorization: Bearer <token>`.
+  - Valida la integridad y caducidad mediante `JwtUtils`.
+  - Carga los detalles en `UserDetailsServiceImpl` y establece la autenticación en `SecurityContextHolder`.
+- **Controladores Expuestos:**
+  - `POST /api/auth/login`: Autenticación con email y contraseña, retorna JWT y perfil del usuario.
+  - `GET /api/auth/me`: Retorna los datos del usuario autenticado actual.
+  - `GET /api/auth-demo/*`: Endpoints de demostración para verificar autorización por rol (`/admin-only`, `/technician-only`, `/user-only`, `/authenticated`).
+- **Manejo Centralizado de Excepciones:**
+  - Respuestas JSON uniformes (`ApiErrorResponse`) con timestamp, código de estado HTTP, mensaje de error y ruta.
+
+
