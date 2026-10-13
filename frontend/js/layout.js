@@ -36,8 +36,12 @@ export async function mountShell(active, title) {
   try {
     const profile = await get('/api/auth/me');
     if (profile) updateUser(profile);
-  } catch {
-    // Si falla por 401 el api() redirige al login; otros errores mantienen la sesión en caché
+  } catch (err) {
+    if (err.status === 401 || err.status === 403) {
+      // Token inválido o base de datos distinta a la sesión anterior
+      window.location.replace('index.html?expired=1');
+      return null;
+    }
   }
 
   const user = getUser();

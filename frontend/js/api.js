@@ -29,7 +29,7 @@ export async function api(path, { method = 'GET', body, auth = true } = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError(0, 'Error: El servidor no respondió. Por favor, intente nuevamente más tarde.');
+    throw new ApiError(0, 'No se pudo conectar con el servidor backend (http://localhost:8080). Verifique que el servicio esté activo y la base de datos conectada.');
   }
 
   if (response.status === 204) return null;
