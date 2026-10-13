@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="only light">
+  <title>Panel de Control - TechNova IT Helpdesk</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%231b7f79'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+    .kpi-card .kpi-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+    }
+    .kpi-card .kpi-lbl {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <script type="module" src="js/pages/dashboard.js"></script>
+</body>
+</html>

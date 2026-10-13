@@ -1,0 +1,188 @@
+import { get } from '../api.js';
+import { mountShell } from '../layout.js';
+import { can, getUser, hasRole } from '../session.js';
+import {
+  PRIORITY_LABELS, countUp, emptyHtml, esc, formatDate, skeletonRows,
+  skeletonStats, stagger, statusBadge, toast
+} from '../ui.js';
+
+const content = await mountShell('dashboard', 'Panel de Control');
+if (content) render();
+
+async function render() {
+  const user = getUser();
+  const isAdmin = hasRole('ADMIN');
+  const first = user?.firstName || user?.fullName?.split(' ')[0] || 'Usuario';
+  const canCreate = can('TICKET_CREATE') || hasRole('USER');
+
+  content.innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1>Hola, ${esc(first)}</h1>
+        <p>${isAdmin ? 'Visión analítica consolidada y gestión operativa de TechNova Solutions.' : 'Resumen del estado y progreso de sus solicitudes de soporte.'}</p>
+      </div>
+      ${canCreate ? '<a class="btn primary" href="tickets.html?new=1">Nueva Solicitud</a>' : ''}
+    </div>
+    <div id="kpis"></div>
+    <div id="stats">${skeletonStats()}</div>
+    <div class="two-col" id="lower">
+      <section class="card">${skeletonRows(6)}</section>
+      <section class="card">${skeletonRows(4)}</section>
+    </div>`;
+
+  try {
+    let dashboardData = null;
+    let tickets = [];
+
+    if (isAdmin) {
+      const [metricsRes, ticketsRes] = await Promise.all([
+        get('/api/admin/dashboard'),
+        get('/api/tickets')
+      ]);
+      dashboardData = metricsRes;
+      tickets = ticketsRes || [];
+    } else {
+      tickets = (await get('/api/tickets')) || [];
+      dashboardData = computeUserMetrics(tickets);
+    }
+
+    renderKpis(dashboardData, isAdmin);
+    renderStats(dashboardData);
+    renderLower(dashboardData, tickets);
+  } catch (error) {
+    document.getElementById('stats').innerHTML = emptyHtml('No se pudo cargar el panel', error.message);
+    toast(error.message, 'error');
+  }
+}
+
+function computeUserMetrics(tickets) {
+  const count = (status) => tickets.filter((t) => t.statusName === status).length;
+  const byPriority = {};
+  ['BAJA', 'MEDIA', 'ALTA', 'CRITICA'].forEach((p) => {
+    byPriority[p] = tickets.filter((t) => t.priorityName === p).length;
+  });
+
+  return {
+    totalTickets: tickets.length,
+    openTickets: count('ABIERTA'),
+    assignedTickets: count('ASIGNADA'),
+    inProgressTickets: count('EN_PROCESO'),
+    resolvedTickets: count('RESUELTA'),
+    closedTickets: count('CERRADA'),
+    priorityDistribution: Object.entries(byPriority).map(([k, v]) => ({
+      priorityName: k,
+      count: v,
+    })),
+  };
+}
+
+function renderKpis(d, isAdmin) {
+  const kpisContainer = document.getElementById('kpis');
+  if (!isAdmin || !d || d.slaCompliancePercentage === undefined) {
+    kpisContainer.innerHTML = '';
+    return;
+  }
+
+  const slaPct = (d.slaCompliancePercentage ?? 0).toFixed(1);
+  const mttr = (d.averageResolutionTimeHours ?? 0).toFixed(1);
+
+  kpisContainer.innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val">${slaPct}%</div>
+        <div class="kpi-lbl">Cumplimiento de SLA (${d.slaCompliantCount || 0} dentro de plazo)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${mttr} hrs</div>
+        <div class="kpi-lbl">Tiempo Medio de Resolución (MTTR)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">${d.slaBreachedCount || 0}</div>
+        <div class="kpi-lbl">Tickets con Incumplimiento de SLA</div>
+      </div>
+    </div>`;
+}
+
+function renderStats(s) {
+  const items = [
+    ['total', s.totalTickets ?? 0, 'Total de Tickets'],
+    ['open', s.openTickets ?? 0, 'Abiertas'],
+    ['assigned', s.assignedTickets ?? 0, 'Asignadas'],
+    ['progress', s.inProgressTickets ?? 0, 'En Proceso'],
+    ['resolved', s.resolvedTickets ?? 0, 'Resueltas'],
+    ['closed', s.closedTickets ?? 0, 'Cerradas'],
+  ];
+
+  document.getElementById('stats').innerHTML = `
+    <section class="stats" aria-label="Indicadores cuantitativos de tickets">
+      ${items.map(([cls, value, label], i) => `
+        <div class="stat ${cls}" style="--i:${i}">
+          <div class="value" data-value="${value}">0</div>
+          <div class="label">${label}</div>
+        </div>`).join('')}
+    </section>`;
+
+  document.querySelectorAll('#stats .value').forEach((el) => countUp(el, Number(el.dataset.value)));
+}
+
+function renderLower(summary, tickets) {
+  const recent = tickets.slice(0, 6);
+
+  // Distribución de prioridades
+  let priorityMap = {};
+  if (Array.isArray(summary.priorityDistribution)) {
+    summary.priorityDistribution.forEach((p) => {
+      priorityMap[p.priorityName] = p.count;
+    });
+  } else if (summary.byPriority) {
+    priorityMap = summary.byPriority;
+  }
+
+  const priorityOrder = ['CRITICA', 'ALTA', 'MEDIA', 'BAJA'];
+  const max = Math.max(1, ...Object.values(priorityMap), 1);
+
+  const bars = priorityOrder.map((pri) => {
+    const count = priorityMap[pri] || 0;
+    const label = PRIORITY_LABELS[pri] || pri;
+    return `
+      <div class="bar-row">
+        <span>${esc(label)}</span>
+        <div class="bar-track">
+          <div class="bar-fill ${esc(pri)}" style="width:0" data-width="${(count / max) * 100}"></div>
+        </div>
+        <strong>${count}</strong>
+      </div>`;
+  }).join('');
+
+  const list = recent.length
+    ? `<ul class="mini-list">${recent.map((t) => `
+        <li>
+          <div>
+            <a href="ticket-detail.html?id=${t.id}">${esc(t.title)}</a>
+            <small>${t.code || `#${t.id}`} &bull; ${esc(t.requesterName || 'Solicitante')} &bull; ${esc(formatDate(t.updatedAt || t.createdAt))}</small>
+          </div>
+          ${statusBadge(t.statusName || t.status)}
+        </li>`).join('')}</ul>`
+    : emptyHtml('Sin solicitudes registradas', can('TICKET_CREATE') || hasRole('USER') ? 'Cree una nueva solicitud para iniciar.' : 'No hay incidencias para mostrar.');
+
+  document.getElementById('lower').innerHTML = `
+    <section class="card">
+      <div class="card-head">
+        <h2>Actividad Reciente</h2>
+        <a href="tickets.html">Ver todos</a>
+      </div>
+      ${list}
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <h2>Distribución por Prioridad</h2>
+      </div>
+      <div class="bars">${bars}</div>
+    </section>`;
+
+  stagger(document.getElementById('lower'), '.mini-list li');
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    document.querySelectorAll('.bar-fill').forEach((bar) => {
+      bar.style.width = `${bar.dataset.width}%`;
+    })));
+}

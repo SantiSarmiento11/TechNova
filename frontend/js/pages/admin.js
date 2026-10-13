@@ -1,0 +1,232 @@
+import { get, put } from '../api.js';
+import { mountShell } from '../layout.js';
+import { can, hasRole } from '../session.js';
+import {
+  $, $$, emptyHtml, esc, formatDate, loadingHtml, priorityBadge,
+  statusBadge, toast,
+} from '../ui.js';
+
+const content = await mountShell('admin', 'Administración TI');
+
+const TABS = [
+  {
+    key: 'assignment',
+    label: 'Cola de Asignación de Tickets',
+    show: () => hasRole('ADMIN') || can('TICKET_ASSIGN'),
+    load: loadAssignmentQueue,
+  },
+  {
+    key: 'technicians',
+    label: 'Equipo Técnico y Carga de Trabajo',
+    show: () => hasRole('ADMIN') || can('TECHNICIAN_VIEW_AVAILABLE'),
+    load: loadTechniciansWorkload,
+  },
+];
+
+if (content) {
+  const tabs = TABS.filter((t) => t.show());
+  if (!tabs.length) {
+    content.innerHTML = emptyHtml(
+      'Acceso Denegado',
+      'Su usuario no cuenta con el rol de Administrador o permisos de gestión operativa.'
+    );
+  } else {
+    content.innerHTML = `
+      <div class="page-head">
+        <div>
+          <h1>Panel de Administración TI</h1>
+          <p>Asignación de especialistas técnicos, supervisión de carga y estado operativo.</p>
+        </div>
+      </div>
+      <div class="admin-tabs" role="tablist">
+        ${tabs.map((t) => `
+          <button type="button" role="tab" data-tab="${t.key}" aria-selected="false">
+            ${esc(t.label)}
+          </button>`).join('')}
+      </div>
+      <div id="tab-body"></div>`;
+
+    $$('[data-tab]').forEach((b) => b.addEventListener('click', () => selectTab(b.dataset.tab, tabs)));
+    selectTab(tabs[0].key, tabs);
+  }
+}
+
+function selectTab(key, tabs) {
+  $$('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === key)));
+  $('#tab-body').innerHTML = `<section class="card" id="panel">${loadingHtml('Cargando módulo...')}</section>`;
+  tabs.find((t) => t.key === key).load();
+}
+
+const fail = (error) => {
+  $('#panel').innerHTML = emptyHtml('No se pudo cargar esta sección', error.message);
+  toast(error.message, 'error');
+};
+
+// ---------------- 1. COLA DE ASIGNACIÓN DE TICKETS ----------------
+async function loadAssignmentQueue() {
+  try {
+    const [tickets, technicians] = await Promise.all([
+      get('/api/tickets'),
+      get('/api/users/technicians'),
+    ]);
+
+    if (!tickets || !tickets.length) {
+      $('#panel').innerHTML = emptyHtml('No hay tickets registrados en el sistema');
+      return;
+    }
+
+    const techOptions = (technicians || []).map((t) => ({
+      id: t.id,
+      name: `${t.firstName} ${t.lastName}`,
+    }));
+
+    // Ordenar tickets: primero los que están en ABIERTA (pendientes de asignación), luego ASIGNADA y otros
+    const sorted = [...tickets].sort((a, b) => {
+      const aStatus = a.statusName || a.status;
+      const bStatus = b.statusName || b.status;
+      if (aStatus === 'ABIERTA' && bStatus !== 'ABIERTA') return -1;
+      if (aStatus !== 'ABIERTA' && bStatus === 'ABIERTA') return 1;
+      return (b.id || 0) - (a.id || 0);
+    });
+
+    $('#panel').innerHTML = `
+      <div class="card-head">
+        <h2>Monitoreo y Asignación Manual</h2>
+        <span class="id">${sorted.length} tickets en total</span>
+      </div>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:16px">
+        Seleccione un técnico para asignar una incidencia nueva (cambiará automáticamente a <strong>ASIGNADA</strong>) o reasignar una existente.
+      </p>
+      <div class="table-wrap">
+        <table class="stack">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Prioridad</th>
+              <th>Estado</th>
+              <th>Solicitante</th>
+              <th>Técnico Asignado</th>
+              <th>Acción de Asignación</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sorted.map((t) => renderTicketRow(t, techOptions)).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+    $$('[data-assign-select]').forEach((select) => {
+      select.addEventListener('change', async () => {
+        const ticketId = select.dataset.assignSelect;
+        const technicianId = Number(select.value);
+        if (!technicianId) return;
+
+        try {
+          await put(`/api/tickets/${ticketId}/assign`, { technicianId });
+          toast(`Ticket #${ticketId} asignado correctamente`, 'success');
+          loadAssignmentQueue();
+        } catch (error) {
+          toast(error.message, 'error');
+          select.value = '';
+        }
+      });
+    });
+  } catch (error) {
+    fail(error);
+  }
+}
+
+function renderTicketRow(t, technicians) {
+  const status = t.statusName || t.status;
+  const isFinal = status === 'CERRADA';
+  const currentTechId = t.assignedTechnicianId;
+
+  let assignAction = '<span class="id">-</span>';
+  if (!isFinal) {
+    assignAction = `
+      <select class="assign-dropdown" data-assign-select="${t.id}" aria-label="Asignar técnico para ${t.id}">
+        <option value="">${currentTechId ? 'Reasignar a...' : 'Asignar técnico...'}</option>
+        ${technicians.map((tech) => `
+          <option value="${tech.id}" ${tech.id === currentTechId ? 'disabled' : ''}>
+            ${esc(tech.name)} ${tech.id === currentTechId ? '(Actual)' : ''}
+          </option>`).join('')}
+      </select>`;
+  }
+
+  return `
+    <tr>
+      <td data-label="Código" class="id"><strong>${esc(t.code || `#${t.id}`)}</strong></td>
+      <td data-label="Título">
+        <a class="title" href="ticket-detail.html?id=${t.id}">${esc(t.title)}</a>
+        <small>${esc(formatDate(t.createdAt))}</small>
+      </td>
+      <td data-label="Categoría">${esc(t.categoryName || 'General')}</td>
+      <td data-label="Prioridad">${priorityBadge(t.priorityName || t.priority)}</td>
+      <td data-label="Estado">${statusBadge(status)}</td>
+      <td data-label="Solicitante">${esc(t.requesterName || '-')}</td>
+      <td data-label="Técnico">${t.assignedTechnicianName ? esc(t.assignedTechnicianName) : '<span class="id">Sin Asignar</span>'}</td>
+      <td data-label="Acción">${assignAction}</td>
+    </tr>`;
+}
+
+// ---------------- 2. EQUIPO TÉCNICO Y CARGA DE TRABAJO ----------------
+async function loadTechniciansWorkload() {
+  try {
+    const [technicians, dashboardRes] = await Promise.all([
+      get('/api/users/technicians'),
+      get('/api/admin/dashboard').catch(() => null),
+    ]);
+
+    if (!technicians || !technicians.length) {
+      $('#panel').innerHTML = emptyHtml('No hay técnicos disponibles', 'No se encontraron técnicos activos.');
+      return;
+    }
+
+    const workloads = dashboardRes?.technicianWorkloads || [];
+    const workloadMap = new Map();
+    workloads.forEach((w) => {
+      workloadMap.set(w.technicianId, {
+        active: w.activeTickets ?? w.activeTicketsCount ?? 0,
+        resolved: w.resolvedTickets ?? 0,
+      });
+    });
+
+    $('#panel').innerHTML = `
+      <div class="card-head">
+        <h2>Especialistas de Soporte Técnico (${technicians.length})</h2>
+      </div>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:16px">
+        Métricas de distribución de incidencias asignadas por especialista técnico.
+      </p>
+      <div class="table-wrap">
+        <table class="stack">
+          <thead>
+            <tr>
+              <th>Nombre Completo</th>
+              <th>Correo Institucional</th>
+              <th>Estado de Cuenta</th>
+              <th>Tickets Activos</th>
+              <th>Tickets Resueltos</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${technicians.map((t) => {
+              const counts = workloadMap.get(t.id) || { active: 0, resolved: 0 };
+              return `
+                <tr>
+                  <td data-label="Nombre"><strong>${esc(t.firstName)} ${esc(t.lastName)}</strong></td>
+                  <td data-label="Correo">${esc(t.email)}</td>
+                  <td data-label="Estado"><span class="badge ${t.isActive ? 'RESOLVED' : 'CLOSED'}">${t.isActive ? 'Activo' : 'Inactivo'}</span></td>
+                  <td data-label="Tickets Activos"><strong>${counts.active}</strong></td>
+                  <td data-label="Tickets Resueltos">${counts.resolved}</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (error) {
+    fail(error);
+  }
+}

@@ -1,0 +1,355 @@
+import { get, post, put } from '../api.js';
+import { mountShell } from '../layout.js';
+import { can, getUser, hasRole } from '../session.js';
+import {
+  $, PRIORITY_LABELS, STATUS_FLOW, STATUS_LABELS, confirmDialog, emptyHtml, esc,
+  formatDate, loadingHtml, openDialog, stagger, priorityBadge, selectHtml,
+  setFormError, showFieldErrors, statusBadge, toast, withBusy,
+} from '../ui.js';
+
+const content = await mountShell('tickets', 'Detalle de Incidencia');
+const id = Number(new URLSearchParams(window.location.search).get('id'));
+let ticket = null;
+
+if (content) {
+  if (!Number.isInteger(id) || id <= 0) {
+    content.innerHTML = emptyHtml('Ticket no válido', 'El enlace no contiene un identificador válido de ticket.');
+  } else {
+    load();
+  }
+}
+
+async function load() {
+  content.innerHTML = loadingHtml('Cargando información del ticket...');
+  try {
+    ticket = await get(`/api/tickets/${id}`);
+    const [comments, history] = await Promise.all([
+      get(`/api/tickets/${id}/comments`),
+      get(`/api/tickets/${id}/history`),
+    ]);
+    render(comments || [], history || []);
+  } catch (error) {
+    const title = error.status === 403
+      ? 'Acceso denegado'
+      : error.status === 404
+      ? 'Ticket no encontrado'
+      : 'Error al consultar el ticket';
+    content.innerHTML = `
+      ${emptyHtml(title, error.message)}
+      <p style="text-align:center;margin-top:16px"><a class="btn" href="tickets.html">Volver a la lista de tickets</a></p>`;
+  }
+}
+
+function stepper() {
+  const currentStatus = ticket.statusName || ticket.status;
+  const index = STATUS_FLOW.indexOf(currentStatus);
+  return `
+    <ol class="stepper" aria-label="Progreso del ciclo de vida">
+      ${STATUS_FLOW.map((s, i) => `
+        <li class="${i < index ? 'done' : i === index ? 'current' : ''}" ${i === index ? 'aria-current="step"' : ''}>
+          ${esc(STATUS_LABELS[s] || s)}
+        </li>`).join('')}
+    </ol>`;
+}
+
+function render(comments, history) {
+  const user = getUser();
+  const isAdmin = hasRole('ADMIN');
+  const isTechnician = hasRole('TECHNICIAN');
+  const isRequester = ticket.requesterId === user?.id;
+  const isAssignedTech = ticket.assignedTechnicianId === user?.id;
+  const currentStatus = ticket.statusName || ticket.status;
+  const isClosed = currentStatus === 'CERRADA';
+
+  // Permisos para comentar: USER en propios, TECHNICIAN en asignados o propios, ADMIN en cualquiera (si no está cerrado)
+  const canComment = !isClosed && (isAdmin || isAssignedTech || isRequester || can('TICKET_COMMENT_OWN') || can('TICKET_COMMENT_TECHNICIAN'));
+
+  content.innerHTML = `
+    <div class="page-head">
+      <div>
+        <p><a href="tickets.html">&larr; Tickets</a> / <strong>${esc(ticket.code || `#${ticket.id}`)}</strong></p>
+        <h1>${esc(ticket.title)}</h1>
+      </div>
+      <div class="inline-actions">
+        ${statusBadge(currentStatus)}
+        ${priorityBadge(ticket.priorityName || ticket.priority)}
+      </div>
+    </div>
+
+    <section class="card">${stepper()}</section>
+
+    <div class="detail-grid" style="margin-top:18px">
+      <div>
+        <section class="card">
+          <div class="card-head"><h2>Descripción de la Incidencia</h2></div>
+          <p class="description">${esc(ticket.description)}</p>
+        </section>
+
+        <section class="card" id="comments-card">
+          <div class="card-head">
+            <h2>Comentarios y Seguimiento (${comments.length})</h2>
+          </div>
+          ${comments.length ? comments.map(commentHtml).join('') : emptyHtml('Sin comentarios registrados')}
+          ${canComment ? commentForm() : `
+            <div class="locked" style="margin-top:14px;padding:12px;background:#f5faf9;border-radius:8px;color:var(--muted);font-size:0.9rem">
+              ${isClosed ? 'Este ticket ha sido cerrado definitivamente y no admite nuevos comentarios.' : 'No tiene permisos para comentar en este ticket.'}
+            </div>`}
+        </section>
+      </div>
+
+      <div>
+        <section class="card">
+          <div class="card-head"><h2>Detalles de la Solicitud</h2></div>
+          <dl class="kv">
+            <dt>Código</dt>
+            <dd><strong>${esc(ticket.code || `#${ticket.id}`)}</strong></dd>
+
+            <dt>Solicitante</dt>
+            <dd>${esc(ticket.requesterName || 'Desconocido')}<br><small>${esc(ticket.requesterEmail || '')}</small></dd>
+
+            <dt>Técnico Responsable</dt>
+            <dd>${ticket.assignedTechnicianName
+              ? `${esc(ticket.assignedTechnicianName)}<br><small>${esc(ticket.assignedTechnicianEmail || '')}</small>`
+              : '<span class="id">Pendiente de asignación</span>'}</dd>
+
+            <dt>Categoría</dt>
+            <dd>${esc(ticket.categoryName || 'General')}</dd>
+
+            <dt>Prioridad</dt>
+            <dd>${priorityBadge(ticket.priorityName || ticket.priority)}</dd>
+
+            <dt>Fecha Límite SLA</dt>
+            <dd>${ticket.dueDate ? esc(formatDate(ticket.dueDate)) : '<span class="id">No definida</span>'}</dd>
+
+            <dt>Fecha de Registro</dt>
+            <dd>${esc(formatDate(ticket.createdAt))}</dd>
+
+            <dt>Última Actualización</dt>
+            <dd>${esc(formatDate(ticket.updatedAt || ticket.createdAt))}</dd>
+          </dl>
+        </section>
+
+        ${renderActionsCard(currentStatus, isAdmin, isAssignedTech, isRequester)}
+
+        <section class="card">
+          <div class="card-head"><h2>Historial de Auditoría</h2></div>
+          <ul class="timeline">
+            ${history.length
+              ? history.slice().reverse().map(historyHtml).join('')
+              : '<li class="id">Registro inicial del ticket</li>'}
+          </ul>
+        </section>
+      </div>
+    </div>`;
+
+  stagger(content, '.timeline li');
+  stagger(content, '.comment');
+  bindEvents();
+}
+
+const commentHtml = (c) => `
+  <article class="comment">
+    <header>
+      <strong>${esc(c.authorName || 'Usuario')}</strong>
+      <span class="id">${esc(formatDate(c.createdAt))}</span>
+    </header>
+    <p>${esc(c.content)}</p>
+  </article>`;
+
+function commentForm() {
+  return `
+    <form id="comment-form" style="margin-top:14px" novalidate>
+      <div class="field">
+        <label for="comment-text">Agregar comentario</label>
+        <textarea id="comment-text" name="content" maxlength="2000" style="min-height:90px" placeholder="Escriba su actualización o respuesta técnica..." required></textarea>
+        <span class="field-error"></span>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Publicar Comentario</button>
+      </div>
+    </form>`;
+}
+
+function historyHtml(h) {
+  const prev = h.previousStatusName ? STATUS_LABELS[h.previousStatusName] || h.previousStatusName : null;
+  const curr = h.newStatusName ? STATUS_LABELS[h.newStatusName] || h.newStatusName : h.newStatusId;
+  const change = prev
+    ? `Transición de <strong>${esc(prev)}</strong> a <strong>${esc(curr)}</strong>`
+    : `Creado en estado <strong>${esc(curr)}</strong>`;
+
+  return `
+    <li>
+      <div>${change}</div>
+      <span class="when">${esc(h.changedByName || 'Sistema')} &bull; ${esc(formatDate(h.changedAt))}</span>
+    </li>`;
+}
+
+/**
+ * Renderiza los botones de acción estrictamente respaldados por la máquina de estados del backend:
+ * RN-02:
+ * ABIERTA -> ASIGNADA (Exclusivo ADMIN mediante PUT /api/tickets/{id}/assign)
+ * ASIGNADA -> EN_PROCESO (TECHNICIAN asignado mediante PUT /api/tickets/{id}/status)
+ * EN_PROCESO -> RESUELTA (TECHNICIAN asignado mediante PUT /api/tickets/{id}/status)
+ * RESUELTA -> CERRADA (USER solicitante o ADMIN mediante PUT /api/tickets/{id}/status)
+ */
+function renderActionsCard(currentStatus, isAdmin, isAssignedTech, isRequester) {
+  const buttons = [];
+
+  if (isAdmin && (currentStatus === 'ABIERTA' || currentStatus === 'ASIGNADA')) {
+    buttons.push(`
+      <button class="btn primary" data-act="assign" type="button">
+        ${ticket.assignedTechnicianId ? 'Reasignar Técnico' : 'Asignar Técnico (ADMIN)'}
+      </button>`);
+  }
+
+  if (currentStatus === 'ASIGNADA' && (isAssignedTech || isAdmin)) {
+    buttons.push(`
+      <button class="btn primary" data-act="start" type="button">
+        Iniciar Atención (En Proceso)
+      </button>`);
+  }
+
+  if (currentStatus === 'EN_PROCESO' && (isAssignedTech || isAdmin)) {
+    buttons.push(`
+      <button class="btn primary" data-act="resolve" type="button">
+        Marcar como Resuelta
+      </button>`);
+  }
+
+  if (currentStatus === 'RESUELTA' && (isRequester || isAdmin)) {
+    buttons.push(`
+      <button class="btn primary" data-act="close" type="button">
+        Dar Conformidad y Cerrar Ticket
+      </button>`);
+  }
+
+  if (!buttons.length) {
+    const text = currentStatus === 'CERRADA'
+      ? 'Ticket cerrado formalmente. No hay acciones pendientes.'
+      : 'No hay acciones disponibles para su rol en el estado actual.';
+    return `
+      <section class="card">
+        <div class="card-head"><h2>Acciones del Ciclo de Vida</h2></div>
+        <div class="locked" style="padding:12px;background:#f5faf9;border-radius:8px;color:var(--muted);font-size:0.9rem">${text}</div>
+      </section>`;
+  }
+
+  return `
+    <section class="card">
+      <div class="card-head"><h2>Acciones del Ciclo de Vida</h2></div>
+      <div class="actions-panel" style="display:flex;flex-direction:column;gap:8px">
+        ${buttons.join('')}
+      </div>
+    </section>`;
+}
+
+function bindEvents() {
+  content.querySelectorAll('[data-act]').forEach((button) => {
+    button.addEventListener('click', () => handlers[button.dataset.act](button));
+  });
+
+  $('#comment-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const contentText = form.content.value.trim();
+    setFormError(form, '');
+    if (showFieldErrors(form, contentText ? null : { content: 'El comentario no puede estar vacío' })) return;
+
+    try {
+      await withBusy(
+        $('button[type=submit]', form),
+        () => post(`/api/tickets/${id}/comments`, { content: contentText })
+      );
+      toast('Comentario agregado exitosamente', 'success');
+      load();
+    } catch (error) {
+      if (!showFieldErrors(form, error.validationErrors)) setFormError(form, error.message);
+    }
+  });
+}
+
+async function transitionStatus(targetStatus, button) {
+  try {
+    await withBusy(button, () => put(`/api/tickets/${id}/status`, { status: targetStatus }));
+    toast(`Estado actualizado a ${STATUS_LABELS[targetStatus] || targetStatus}`, 'success');
+    load();
+  } catch (error) {
+    toast(error.message, 'error');
+  }
+}
+
+const handlers = {
+  start: (button) => transitionStatus('EN_PROCESO', button),
+  resolve: async (button) => {
+    const ok = await confirmDialog(
+      '¿Marcar como Resuelta?',
+      'Confirma que la solución técnica fue implementada satisfactoriamente.',
+      'Marcar Resuelta'
+    );
+    if (ok) transitionStatus('RESUELTA', button);
+  },
+  close: async (button) => {
+    const ok = await confirmDialog(
+      '¿Cerrar definitivamente el ticket?',
+      'Confirma que el incidente está resuelto y se da conformidad final al servicio.',
+      'Cerrar Ticket'
+    );
+    if (ok) transitionStatus('CERRADA', button);
+  },
+  assign: async () => {
+    let technicians;
+    try {
+      technicians = await get('/api/users/technicians');
+    } catch (error) {
+      toast(error.message, 'error');
+      return;
+    }
+
+    if (!technicians || !technicians.length) {
+      toast('No hay técnicos activos disponibles en el sistema.', 'error');
+      return;
+    }
+
+    const currentTechId = ticket.assignedTechnicianId;
+    const options = technicians.map((t) => [
+      String(t.id),
+      `${t.firstName} ${t.lastName} (${t.email})`,
+    ]);
+
+    const dialog = openDialog(`
+      <h2>${ticket.assignedTechnicianId ? 'Reasignar Especialista Técnico' : 'Asignar Especialista Técnico'}</h2>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:14px">
+        La asignación actualizará automáticamente el estado del ticket a <strong>ASIGNADA</strong>.
+      </p>
+      <form id="assign-form">
+        ${selectHtml({
+          name: 'technicianId',
+          label: 'Especialista Técnico',
+          options,
+          value: currentTechId ? String(currentTechId) : options[0][0],
+        })}
+        <div class="form-actions">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn primary" type="submit">Guardar Asignación</button>
+        </div>
+      </form>`);
+
+    dialog.querySelector('[data-close]').addEventListener('click', () => dialog.close());
+    dialog.querySelector('#assign-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.target;
+      const techId = Number(form.technicianId.value);
+      try {
+        await withBusy(
+          $('button[type=submit]', form),
+          () => put(`/api/tickets/${id}/assign`, { technicianId: techId })
+        );
+        toast('Técnico asignado exitosamente', 'success');
+        dialog.close();
+        load();
+      } catch (error) {
+        setFormError(form, error.message);
+      }
+    });
+  },
+};

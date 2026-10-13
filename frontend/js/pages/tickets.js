@@ -1,0 +1,281 @@
+import { get, post } from '../api.js';
+import { mountShell } from '../layout.js';
+import { can, hasRole } from '../session.js';
+import {
+  $, PRIORITY_LABELS, STATUS_LABELS, emptyHtml, esc, fieldHtml, formatDate,
+  skeletonRows, openDialog, priorityBadge, selectHtml, setFormError,
+  showFieldErrors, stagger, statusBadge, toast, withBusy,
+} from '../ui.js';
+
+const content = await mountShell('tickets', 'Gestión de Tickets');
+
+let allTickets = [];
+let categoriesList = [];
+let prioritiesList = [];
+const filters = { status: '', priorityId: '', categoryId: '' };
+
+function renderPage() {
+  const isAdmin = hasRole('ADMIN');
+  const isTech = hasRole('TECHNICIAN');
+  const scope = isAdmin
+    ? 'Supervisión integral de todas las incidencias registradas en TechNova Solutions.'
+    : isTech
+    ? 'Incidencias asignadas a su atención técnica y solicitudes registradas.'
+    : 'Sus solicitudes de soporte y requerimientos tecnológicos.';
+
+  const canCreate = can('TICKET_CREATE') || hasRole('USER');
+
+  content.innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1>Tickets de Soporte</h1>
+        <p>${esc(scope)}</p>
+      </div>
+      ${canCreate ? '<button class="btn primary" id="new-ticket" type="button">Nueva Solicitud</button>' : ''}
+    </div>
+    <section class="card">
+      <form class="filters" id="filters" aria-label="Filtros de búsqueda de tickets">
+        <div class="field search-field">
+          <label for="f-q">Buscar</label>
+          <input id="f-q" name="q" type="search" placeholder="Código, título, solicitante o técnico..." autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="f-status">Estado</label>
+          <select id="f-status" name="status">
+            <option value="">Todos los estados</option>
+            <option value="ABIERTA">Abierta</option>
+            <option value="ASIGNADA">Asignada</option>
+            <option value="EN_PROCESO">En Proceso</option>
+            <option value="RESUELTA">Resuelta</option>
+            <option value="CERRADA">Cerrada</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-priority">Prioridad</label>
+          <select id="f-priority" name="priorityId">
+            <option value="">Todas las prioridades</option>
+            ${prioritiesList.map((p) => `<option value="${p.id}">${esc(p.name)} (${esc(PRIORITY_LABELS[p.name] || p.name)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-category">Categoría</label>
+          <select id="f-category" name="categoryId">
+            <option value="">Todas las categorías</option>
+            ${categoriesList.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn" type="button" id="clear-filters">Limpiar filtros</button>
+      </form>
+      <div id="list"></div>
+    </section>`;
+
+  $('#filters').addEventListener('submit', (e) => e.preventDefault());
+  $('#filters').addEventListener('change', (e) => {
+    if (e.target.name === 'q') return;
+    filters[e.target.name] = e.target.value;
+    loadTickets();
+  });
+  $('#f-q').addEventListener('input', paint);
+  $('#clear-filters').addEventListener('click', () => {
+    $('#filters').reset();
+    Object.keys(filters).forEach((k) => (filters[k] = ''));
+    loadTickets();
+  });
+  $('#new-ticket')?.addEventListener('click', openCreateDialog);
+}
+
+async function loadInitialData() {
+  try {
+    const [cats, pris] = await Promise.all([
+      get('/api/categories'),
+      get('/api/priorities'),
+    ]);
+    categoriesList = cats || [];
+    prioritiesList = pris || [];
+  } catch (err) {
+    console.warn('No se pudieron precargar categorías o prioridades', err);
+  }
+}
+
+async function loadTickets() {
+  const list = $('#list');
+  list.innerHTML = skeletonRows(6);
+
+  // Parámetros compatibles con Backend GET /api/tickets
+  const params = new URLSearchParams();
+  if (filters.categoryId) params.set('categoryId', filters.categoryId);
+  if (filters.priorityId) params.set('priorityId', filters.priorityId);
+
+  const queryStr = params.toString() ? `?${params.toString()}` : '';
+
+  try {
+    allTickets = (await get(`/api/tickets${queryStr}`)) || [];
+    paint();
+  } catch (error) {
+    list.innerHTML = emptyHtml('No se pudieron cargar los tickets', error.message);
+    toast(error.message, 'error');
+  }
+}
+
+function paint() {
+  const list = $('#list');
+  const text = ($('#f-q')?.value || '').trim().toLowerCase();
+  const selectedStatus = filters.status;
+
+  let tickets = allTickets;
+
+  if (selectedStatus) {
+    tickets = tickets.filter((t) => (t.statusName || t.status) === selectedStatus);
+  }
+
+  if (text) {
+    tickets = tickets.filter((t) => [
+      t.id,
+      t.code,
+      t.title,
+      t.description,
+      t.requesterName,
+      t.requesterEmail,
+      t.assignedTechnicianName,
+      t.categoryName,
+      t.priorityName,
+      STATUS_LABELS[t.statusName || t.status] || t.statusName,
+      PRIORITY_LABELS[t.priorityName || t.priority] || t.priorityName,
+    ].join(' ').toLowerCase().includes(text));
+  }
+
+  if (!tickets.length) {
+    const hasFilter = text || Object.values(filters).some(Boolean);
+    list.innerHTML = emptyHtml(
+      hasFilter ? 'No se encontraron tickets con los criterios especificados' : 'No hay solicitudes registradas',
+      hasFilter ? 'Pruebe con otros términos o limpie los filtros.' : (can('TICKET_CREATE') || hasRole('USER') ? 'Haga clic en Nueva Solicitud para registrar una.' : '')
+    );
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="table-wrap">
+      <table class="stack">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Título</th>
+            <th>Categoría</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Solicitante</th>
+            <th>Técnico Asignado</th>
+            <th>Límite SLA</th>
+            <th>Últ. Actualización</th>
+          </tr>
+        </thead>
+        <tbody>${tickets.map(rowHtml).join('')}</tbody>
+      </table>
+    </div>
+    <p class="id" style="margin-top:10px">${tickets.length} ticket(s) encontrado(s)</p>`;
+
+  stagger(list, 'tbody tr');
+  list.querySelectorAll('tr.clickable').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (!e.target.closest('a')) window.location.href = `ticket-detail.html?id=${row.dataset.id}`;
+    });
+  });
+}
+
+function rowHtml(t) {
+  const status = t.statusName || t.status;
+  const priority = t.priorityName || t.priority;
+  const technician = t.assignedTechnicianName
+    ? esc(t.assignedTechnicianName)
+    : '<span class="id">Sin asignar</span>';
+  const dueDateStr = t.dueDate ? esc(formatDate(t.dueDate)) : '<span class="id">-</span>';
+
+  return `
+    <tr class="clickable row-in" data-id="${t.id}">
+      <td data-label="Código" class="id"><strong>${esc(t.code || `#${t.id}`)}</strong></td>
+      <td data-label="Título"><a class="title" href="ticket-detail.html?id=${t.id}">${esc(t.title)}</a></td>
+      <td data-label="Categoría">${esc(t.categoryName || 'General')}</td>
+      <td data-label="Prioridad">${priorityBadge(priority)}</td>
+      <td data-label="Estado">${statusBadge(status)}</td>
+      <td data-label="Solicitante">${esc(t.requesterName || '-')}</td>
+      <td data-label="Técnico">${technician}</td>
+      <td data-label="Límite SLA">${dueDateStr}</td>
+      <td data-label="Actualizado">${esc(formatDate(t.updatedAt || t.createdAt))}</td>
+    </tr>`;
+}
+
+function openCreateDialog() {
+  const catOptions = categoriesList.length
+    ? categoriesList.map((c) => [c.id, `${c.name} - ${c.description || ''}`])
+    : [[1, 'HARDWARE'], [2, 'SOFTWARE'], [3, 'REDES'], [4, 'ACCESOS'], [5, 'OTROS']];
+
+  const priOptions = prioritiesList.length
+    ? prioritiesList.map((p) => [p.id, `${p.name} (${p.description || ''})`])
+    : [[1, 'BAJA (24h)'], [2, 'MEDIA (8h)'], [3, 'ALTA (2h)'], [4, 'CRITICA (1h)']];
+
+  const defaultPri = prioritiesList.find((p) => p.name === 'MEDIA')?.id || priOptions[1]?.[0] || priOptions[0]?.[0];
+
+  const dialog = openDialog(`
+    <h2>Nueva Solicitud de Soporte</h2>
+    <form id="ticket-form" novalidate>
+      ${fieldHtml({ name: 'title', label: 'Título del Incidente', hint: 'Breve descripción del problema (máx. 200 caracteres).' })}
+      <div class="field">
+        <label for="f-description">Descripción Detallada</label>
+        <textarea id="f-description" name="description" maxlength="4000" rows="4" required></textarea>
+        <span class="hint">Describa la falla, equipo afectado, mensajes de error y pasos que realizó.</span>
+        <span class="field-error"></span>
+      </div>
+      <div class="row-2">
+        ${selectHtml({ name: 'categoryId', label: 'Categoría', options: catOptions })}
+        ${selectHtml({ name: 'priorityId', label: 'Prioridad Inicial', options: priOptions, value: defaultPri })}
+      </div>
+      <div class="form-actions">
+        <button class="btn" type="button" data-close>Cancelar</button>
+        <button class="btn primary" type="submit">Enviar Solicitud</button>
+      </div>
+    </form>`);
+
+  dialog.querySelector('[data-close]').addEventListener('click', () => dialog.close());
+  dialog.querySelector('#ticket-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const body = {
+      title: form.title.value.trim(),
+      description: form.description.value.trim(),
+      categoryId: Number(form.categoryId.value),
+      priorityId: Number(form.priorityId.value),
+    };
+
+    const errors = {};
+    if (!body.title) errors.title = 'El título es obligatorio';
+    if (!body.description) errors.description = 'La descripción es obligatoria';
+    if (!body.categoryId) errors.categoryId = 'Seleccione una categoría';
+    if (!body.priorityId) errors.priorityId = 'Seleccione una prioridad';
+
+    setFormError(form, '');
+    if (showFieldErrors(form, errors)) return;
+
+    try {
+      const created = await withBusy(
+        $('button[type=submit]', form),
+        () => post('/api/tickets', body)
+      );
+      toast(`Ticket ${created.code || `#${created.id}`} creado exitosamente`, 'success');
+      dialog.close();
+      loadTickets();
+    } catch (error) {
+      if (!showFieldErrors(form, error.validationErrors)) {
+        setFormError(form, error.message);
+      }
+    }
+  });
+}
+
+if (content) {
+  await loadInitialData();
+  renderPage();
+  loadTickets();
+  if (new URLSearchParams(window.location.search).has('new') && (can('TICKET_CREATE') || hasRole('USER'))) {
+    openCreateDialog();
+  }
+}
