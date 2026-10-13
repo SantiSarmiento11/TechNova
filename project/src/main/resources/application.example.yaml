@@ -6,9 +6,9 @@ spring:
     name: technova-it-helpdesk
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/TechNovaTest}
-    username: ${SPRING_DATASOURCE_USERNAME:tu_usuario_postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:tu_clave_postgres}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -20,7 +20,5 @@ spring:
 
 security:
   jwt:
-    # Clave de 256 bits generada de forma segura para HMAC-SHA256 (Base64 o Hex)
-    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-    # Tiempo de expiración en milisegundos (24 horas = 86400000 ms)
+    secret: ${JWT_SECRET}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
