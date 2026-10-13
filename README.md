@@ -91,12 +91,42 @@ main  <--  test  <--  develop  <--  Dev(Santiago, Jason, Brayan, Fabio)
 
 ---
 
-## 🔒 5. Políticas de Seguridad y Manejo de Secretos
+## 🔒 5. Políticas de Seguridad, Variables de Entorno y Manejo de Secretos
 
 > [!IMPORTANT]
 > **No subir credenciales ni secretos a Git**:
-> - Archivos como `.env` y `application.yaml` que contienen credenciales reales de base de datos o claves JWT **están expresamente ignorados** en `.gitignore`.
-> - Se debe utilizar siempre `.env.example` y `application.example.yaml` como referencia para crear las configuraciones locales.
+> - Todos los secretos (URL JDBC, usuario y contraseña de base de datos, secret key JWT) están **estrictamente centralizados en el archivo `.env`**.
+> - El archivo `application.yaml` no contiene credenciales cableadas por defecto; únicamente referencia variables de entorno inyectadas (`${SPRING_DATASOURCE_URL}`, `${SPRING_DATASOURCE_USERNAME}`, etc.).
+> - Tanto `.env` como `application.yaml` están protegidos e ignorados en `.gitignore`.
+> - Se proveen las plantillas maestras `.env.example` y `application.example.yaml` como referencia para nuevos despliegues.
+
+### ⚙️ Inicialización Automática con `.env`
+El backend integra `EnvLoader` y `DotenvEnvironmentPostProcessor`, los cuales leen automáticamente el archivo `.env` ubicado en la raíz del proyecto antes del arranque del contexto de Spring Boot, inyectando las propiedades en tiempo de ejecución.
+
+### 🆕 Procedimiento para Levantar en una Nueva Base de Datos
+1. **Crear la base de datos limpia en PostgreSQL:**
+   ```sql
+   CREATE DATABASE "TechNovaProd" WITH ENCODING 'UTF8';
+   ```
+2. **Configurar el archivo `.env` en la raíz:**
+   ```properties
+   SERVER_PORT=8080
+   SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/TechNovaProd
+   SPRING_DATASOURCE_USERNAME=tu_usuario_postgres
+   SPRING_DATASOURCE_PASSWORD=tu_clave_postgres
+   JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+   JWT_EXPIRATION_MS=86400000
+   ```
+3. **Iniciar el Backend:**
+   ```bash
+   cd project
+   ./gradlew bootRun
+   ```
+   *Nota: Hibernate (`ddl-auto: update`) generará automáticamente las tablas y `DataInitializer` sembrará de inmediato los catálogos canónicos (Categorías, Prioridades, Estados, Transiciones, Roles, Permisos) y los usuarios iniciales (`admin@technova.com`, `tecnico@technova.com`, `usuario@technova.com` con clave `admin123`).*
+
+4. **Abrir el Frontend:**
+   - Servir o abrir `frontend/index.html` en el navegador (ej. con Live Server o navegador web en `http://localhost:5500` / `http://localhost:8080`).
+   - El cliente limpiará automáticamente tokens obsoletos de sesiones anteriores y cargará el estado inicial sin errores.
 
 ---
 
