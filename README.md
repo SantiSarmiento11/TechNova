@@ -250,5 +250,5 @@ TechNova-IT-Helpdesk/
 
 * **Desarrollo y Arquitectura:** Santiago Andrés Sarmiento Martínez
 * **Front-end:** Fabio Daniel Capacho Nuñez
-* **Desarrollo de API y Conección:** Jaon Ferney Pallares Duque y Brayan Fonxeca
+* **Desarrollo de API y Conección:** Jason Ferney Pallares Duque y Brayan Fonxeca
 * **Organización:** TechNova Solutions
