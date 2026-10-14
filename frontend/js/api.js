@@ -77,7 +77,11 @@ export async function api(path, { method = 'GET', body, auth = true, headers = {
     // Extraer mensaje de error del backend
     let message = 'Error en la solicitud al servidor';
     if (data && typeof data === 'object') {
-      message = data.message || data.error || message;
+      if (Array.isArray(data.validationErrors) && data.validationErrors.length > 0) {
+        message = data.validationErrors.join(' | ');
+      } else {
+        message = data.message || data.error || message;
+      }
     } else if (typeof data === 'string' && data.length > 0) {
       message = data;
     }
