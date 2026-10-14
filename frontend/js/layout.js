@@ -59,18 +59,18 @@ export async function mountShell(activePage, pageTitle = '') {
 
         <!-- Navigation Links -->
         <nav class="flex flex-col gap-1.5" id="sidebar-nav">
-          <a href="dashboard.html" data-page="dashboard" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${activePage === 'dashboard' ? 'bg-primary-container text-white shadow-[0_4px_12px_rgba(79,70,229,0.25)] font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'}">
+          <a href="dashboard.html" data-page="dashboard" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${activePage === 'dashboard' ? 'bg-primary-container text-white shadow-[0_4px_12px_rgba(79,70,229,0.25)] font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'}">
             <span class="material-symbols-outlined text-[20px]">space_dashboard</span>
             <span>Panel Principal</span>
           </a>
 
-          <a href="tickets.html" data-page="tickets" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${activePage === 'tickets' || activePage === 'ticket-detail' ? 'bg-primary-container text-white shadow-[0_4px_12px_rgba(79,70,229,0.25)] font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'}">
+          <a href="tickets.html" data-page="tickets" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${activePage === 'tickets' || activePage === 'ticket-detail' ? 'bg-primary-container text-white shadow-[0_4px_12px_rgba(79,70,229,0.25)] font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'}">
             <span class="material-symbols-outlined text-[20px]">confirmation_number</span>
             <span>Tickets</span>
           </a>
 
           ${isAdmin ? `
-            <a href="admin.html" data-page="admin" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${activePage === 'admin' ? 'bg-primary-container text-white shadow-[0_4px_12px_rgba(79,70,229,0.25)] font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'}">
+            <a href="admin.html" data-page="admin" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${activePage === 'admin' ? 'bg-primary-container text-white shadow-[0_4px_12px_rgba(79,70,229,0.25)] font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'}">
               <span class="material-symbols-outlined text-[20px]">insights</span>
               <span>Reportes y Métricas</span>
             </a>
