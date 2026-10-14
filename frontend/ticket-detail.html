@@ -9,6 +9,30 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
+  <script>
+    (function() {
+      try {
+        var token = localStorage.getItem('technova_token');
+        if (!token) {
+          document.documentElement.style.display = 'none';
+          window.location.replace('index.html');
+          return;
+        }
+        var user = JSON.parse(localStorage.getItem('technova_user') || 'null');
+        var roles = (user && user.roles) || [];
+        var isAdmin = roles.some(function(r) {
+          var n = typeof r === 'string' ? r : (r.name || r.authority || '');
+          if (n.indexOf('ROLE_') === 0) n = n.substring(5);
+          return n.toUpperCase() === 'ADMIN';
+        });
+        if (isAdmin) {
+          document.documentElement.classList.add('is-admin');
+        }
+      } catch (e) {
+        window.location.replace('index.html');
+      }
+    })();
+  </script>
 </head>
 <body class="app-shell">
 

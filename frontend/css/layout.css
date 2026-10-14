@@ -87,6 +87,17 @@
   font-size: 20px;
 }
 
+/* Elementos exclusivos de ADMIN ocultos por defecto para prevenir parpadeos no autorizados */
+[data-role-required="ADMIN"],
+.sidebar-link[href="reportes.html"] {
+  display: none !important;
+}
+
+html.is-admin [data-role-required="ADMIN"],
+html.is-admin .sidebar-link[href="reportes.html"] {
+  display: flex !important;
+}
+
 .sidebar-footer {
   padding: 0.75rem 0.85rem;
   background: rgba(255, 255, 255, 0.75);
