@@ -69,11 +69,54 @@ export function getUser() {
 }
 
 /**
- * Verifica si hay una sesión activa con token.
+ * Decodifica el payload de un token JWT estándar sin librerías externas.
+ * @param {string} token
+ * @returns {Object|null}
+ */
+export function parseJwt(token) {
+  if (!token || typeof token !== 'string') return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Verifica si el token JWT actual ha expirado.
+ * @returns {boolean}
+ */
+export function isTokenExpired() {
+  const token = getToken();
+  if (!token) return true;
+  const payload = parseJwt(token);
+  if (!payload || !payload.exp) return false;
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return payload.exp < nowInSeconds;
+}
+
+/**
+ * Verifica si hay una sesión activa con token vigente.
  * @returns {boolean}
  */
 export function isLoggedIn() {
-  return Boolean(getToken());
+  const token = getToken();
+  if (!token) return false;
+  if (isTokenExpired()) {
+    clearSession();
+    return false;
+  }
+  return true;
 }
 
 /**

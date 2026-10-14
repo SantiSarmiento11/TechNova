@@ -2,7 +2,7 @@
  * TechNova IT Helpdesk - Pruebas Unitarias para el Módulo de Sesión y RBAC
  */
 
-import { saveSession, getUser, getToken, isLoggedIn, hasRole, can, clearSession } from './session.js';
+import { saveSession, getUser, getToken, isLoggedIn, hasRole, can, clearSession, parseJwt, isTokenExpired } from './session.js';
 
 export function runSessionTests() {
   const results = [];
@@ -83,7 +83,25 @@ export function runSessionTests() {
   assert(can('TICKET_CREATE') === true, 'can("TICKET_CREATE") es true');
   assert(can('TICKET_ASSIGN') === false, 'can("TICKET_ASSIGN") es false para USER');
 
-  // Test 4: Limpieza de sesión
+  // Test 4: Decodificación y validación de expiración JWT
+  const validExp = Math.floor(Date.now() / 1000) + 3600; // expira en 1 hora
+  const validPayload = btoa(JSON.stringify({ sub: 'user@test.com', exp: validExp }));
+  const fakeValidJwt = `header.${validPayload}.signature`;
+  const parsed = parseJwt(fakeValidJwt);
+  assert(parsed && parsed.sub === 'user@test.com', 'parseJwt() extrae payload con éxito');
+
+  clearSession();
+  saveSession({ token: fakeValidJwt, roles: ['USER'], email: 'user@test.com' });
+  assert(isTokenExpired() === false, 'isTokenExpired() es false para token con exp futura');
+
+  const expiredExp = Math.floor(Date.now() / 1000) - 300; // expiró hace 5 min
+  const expiredPayload = btoa(JSON.stringify({ sub: 'user@test.com', exp: expiredExp }));
+  const fakeExpiredJwt = `header.${expiredPayload}.signature`;
+  saveSession({ token: fakeExpiredJwt, roles: ['USER'], email: 'user@test.com' });
+  assert(isTokenExpired() === true, 'isTokenExpired() es true para token con exp pasada');
+  assert(isLoggedIn() === false, 'isLoggedIn() limpia sesión y retorna false si el token expiró');
+
+  // Test 5: Limpieza de sesión
   clearSession();
   assert(getUser() === null, 'clearSession() elimina datos del usuario');
   assert(getToken() === null, 'clearSession() elimina token');
