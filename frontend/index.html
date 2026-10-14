@@ -38,30 +38,28 @@
     <div class="login-container">
       
       <!-- Hero info left -->
-      <div>
-        <h1 class="display-lg" style="color: #0f172a; margin-bottom: 1rem;">
+      <div class="login-hero-section">
+        <h1 class="display-lg login-hero-title">
           Gestión inteligente de operaciones y soporte en tiempo real.
         </h1>
-        <p class="body-md" style="color: var(--on-surface-variant); max-width: 520px; line-height: 1.6;">
+        <p class="body-md login-hero-subtitle">
           Plataforma unificada para la resolución ágil de incidencias, supervisión de métricas y colaboración entre equipos de soporte de TI.
         </p>
 
-        <div class="login-hero-card">
-          <div style="width: 3.5rem; height: 3.5rem; border-radius: var(--radius-xl); background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); color: var(--primary);">
-            <span class="material-symbols-outlined" style="font-size: 28px;">support_agent</span>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-            <p class="label-lg" style="color: #0f172a;">TechNova Solutions Service Desk</p>
-            <p class="body-sm" style="color: var(--on-surface-variant);">Monitoreo continuo de SLAs y atención de incidentes críticos</p>
-          </div>
+        <!-- Video de animación de ticket flotante ajustado con fondo blanco puro -->
+        <div class="login-video-wrapper">
+          <video class="login-ticket-video" autoplay loop muted playsinline disablepictureinpicture aria-label="Animación ticket flotante Lumina Desk">
+            <source src="assets/Video TechNova.mp4" type="video/mp4">
+            Tu navegador no soporta reproducción de video.
+          </video>
         </div>
       </div>
 
-      <!-- Login Form right -->
+      <!-- Login Form right con elementos ampliados -->
       <div class="login-box">
-        <div style="margin-bottom: 1.5rem;">
-          <h2 class="headline-xl" style="color: #0f172a; margin-bottom: 0.35rem;">Iniciar Sesión</h2>
-          <p class="body-md" style="color: var(--on-surface-variant);">Ingresa tus credenciales corporativas para acceder al sistema.</p>
+        <div style="margin-bottom: 2rem;">
+          <h2 class="headline-xl" style="font-size: 2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Iniciar Sesión</h2>
+          <p class="body-md" style="font-size: 0.95rem; color: var(--on-surface-variant);">Ingresa tus credenciales corporativas para acceder al sistema.</p>
         </div>
 
         <!-- Alert Notification Area -->
@@ -77,17 +75,17 @@
           </div>
 
           <div class="form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
               <label class="form-label" for="work-password">Contraseña</label>
             </div>
             <div class="input-icon-wrap has-trailing-btn">
               <span class="material-symbols-outlined">lock</span>
-              <input class="form-input" id="work-password" type="password" value="admin123" required placeholder="••••••••••••" style="padding-right: 2.75rem;" autocomplete="current-password">
+              <input class="form-input" id="work-password" type="password" value="admin123" required placeholder="••••••••••••" style="padding-right: 3.25rem;" autocomplete="current-password">
               <span class="material-symbols-outlined trailing" id="togglePasswordBtn" title="Mostrar/Ocultar contraseña">visibility</span>
             </div>
           </div>
 
-          <button class="btn btn-primary btn-full" type="submit" style="height: 3rem; font-size: 0.9375rem; margin-top: 1rem;">
+          <button class="btn btn-primary btn-full" type="submit">
             <span>Iniciar Sesión</span>
             <span class="material-symbols-outlined">arrow_forward</span>
           </button>

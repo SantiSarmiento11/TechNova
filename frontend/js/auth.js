@@ -26,6 +26,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // Asegurar reproducción fluida y continua del video de animación del ticket
+  const ticketVideo = document.querySelector('.login-ticket-video');
+  if (ticketVideo) {
+    ticketVideo.muted = true;
+    const playPromise = ticketVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        document.addEventListener('click', () => ticketVideo.play().catch(() => {}), { once: true });
+      });
+    }
+  }
+
   // Alternar visibilidad de contraseña
   if (togglePasswordBtn && passwordInput) {
     togglePasswordBtn.addEventListener('click', () => {
