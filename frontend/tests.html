@@ -41,17 +41,24 @@
     <div id="uiTestResults"></div>
   </div>
 
+  <div class="test-card">
+    <h2 class="headline-md" style="margin-bottom: 1rem; color: var(--primary-container);">4. Pruebas de Integración y Máquina de Estados (integration.test.js)</h2>
+    <div id="integrationTestResults"></div>
+  </div>
+
   <script type="module">
     import { runSessionTests } from './js/session.test.js';
     import { runApiTests } from './js/api.test.js';
     import { runUiTests } from './js/ui.test.js';
+    import { runIntegrationTests } from './js/integration.test.js';
 
     document.addEventListener('DOMContentLoaded', () => {
       const sessionResults = runSessionTests();
       const apiResults = runApiTests();
       const uiResults = runUiTests();
+      const integrationResults = runIntegrationTests();
 
-      const all = [...sessionResults, ...apiResults, ...uiResults];
+      const all = [...sessionResults, ...apiResults, ...uiResults, ...integrationResults];
       const passedCount = all.filter(r => r.passed).length;
       const totalCount = all.length;
 
@@ -67,6 +74,7 @@
       renderList('sessionTestResults', sessionResults);
       renderList('apiTestResults', apiResults);
       renderList('uiTestResults', uiResults);
+      renderList('integrationTestResults', integrationResults);
     });
 
     function renderList(containerId, results) {
