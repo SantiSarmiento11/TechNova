@@ -25,6 +25,15 @@ export const ENDPOINTS = {
     PRIORITIES: '/api/priorities',
     TECHNICIANS: '/api/users/technicians',
   },
+  USERS: {
+    TECHNICIANS: '/api/users/technicians',
+  },
+  CATEGORIES: {
+    BASE: '/api/categories',
+  },
+  PRIORITIES: {
+    BASE: '/api/priorities',
+  },
   ADMIN: {
     DASHBOARD: '/api/admin/dashboard',
   },
