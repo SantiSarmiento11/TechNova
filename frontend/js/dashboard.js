@@ -340,11 +340,26 @@ function setupModalHandlers() {
     });
   }
 
+  const titleInput = document.getElementById('modal-title');
+  const titleCharCounter = document.getElementById('titleCharCount');
+  if (titleInput && titleCharCounter) {
+    titleInput.addEventListener('input', () => {
+      const len = titleInput.value.length;
+      titleCharCounter.textContent = `${len} / 200`;
+      if (len > 180) {
+        titleCharCounter.style.color = '#b91c1c';
+        titleCharCounter.style.fontWeight = '700';
+      } else {
+        titleCharCounter.style.color = 'var(--outline)';
+        titleCharCounter.style.fontWeight = 'normal';
+      }
+    });
+  }
+
   // Envío del formulario de creación de ticket mediante POST /api/tickets
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const titleInput = document.getElementById('modal-title');
       const catSelect = document.getElementById('modal-category');
       const prioSelect = document.getElementById('modal-priority');
       const descInput = document.getElementById('modal-description');
@@ -356,6 +371,11 @@ function setupModalHandlers() {
 
       if (!title || !description || !categoryId || !priorityId) {
         showToast('Por favor complete todos los campos obligatorios.', 'warning');
+        return;
+      }
+
+      if (title.length > 200) {
+        showToast('El título excede el límite máximo de 200 caracteres permitido por el backend.', 'warning');
         return;
       }
 
@@ -378,6 +398,10 @@ function setupModalHandlers() {
 
         showToast(`Ticket #${createdTicket.code || createdTicket.id} registrado exitosamente.`, 'success');
         form.reset();
+        if (titleCharCounter) {
+          titleCharCounter.textContent = '0 / 200';
+          titleCharCounter.style.color = 'var(--outline)';
+        }
         populateModalSelects();
         closeModal(modalId);
 

@@ -277,8 +277,11 @@
       <form id="newTicketForm">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label" for="modal-title">Título de la Incidencia *</label>
-            <input class="form-input" id="modal-title" type="text" required placeholder="Ej. Falla de conectividad en equipo de contabilidad">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="form-label" for="modal-title" style="margin-bottom: 0;">Título de la Incidencia *</label>
+              <span id="titleCharCount" style="font-size: 0.75rem; color: var(--outline);">0 / 200</span>
+            </div>
+            <input class="form-input" id="modal-title" type="text" maxlength="200" required placeholder="Ej. Falla de conectividad en equipo de contabilidad">
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
