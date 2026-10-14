@@ -5,6 +5,7 @@
 
 import { get, post } from './api.js';
 import { ENDPOINTS } from './config.js';
+import { Store } from './store.js';
 import {
   formatDate,
   formatSla,
@@ -26,6 +27,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupModal();
   setupFilterListeners();
   setupPaginationControls();
+
+  // 1. Carga inmediata desde el almacén de cliente (sin parpadeo)
+  const cachedCats = Store.getCategories();
+  const cachedPrios = Store.getPriorities();
+  if (cachedCats && cachedCats.length > 0) {
+    allCategories = cachedCats;
+    populateFilterOptions();
+    populateModalSelects();
+  }
+  if (cachedPrios && cachedPrios.length > 0) {
+    allPriorities = cachedPrios;
+    populateFilterOptions();
+    populateModalSelects();
+  }
+
+  const cachedTickets = Store.getTickets();
+  if (cachedTickets && cachedTickets.length > 0) {
+    allTickets = cachedTickets;
+    applyFiltersAndRender();
+  }
+
+  // 2. Sincronización en segundo plano con el backend
   await loadCatalogs();
   await fetchTickets();
 });
@@ -42,6 +65,9 @@ async function loadCatalogs() {
 
     allCategories = Array.isArray(categories) ? categories : [];
     allPriorities = Array.isArray(priorities) ? priorities : [];
+
+    Store.setCategories(allCategories);
+    Store.setPriorities(allPriorities);
 
     populateFilterOptions();
     populateModalSelects();
@@ -93,13 +119,14 @@ async function fetchTickets() {
   const tableBody = document.getElementById('ticketsTableBody');
   const countText = document.getElementById('ticketCountText');
 
-  if (tableBody) {
+  // Solo mostrar spinner si la tabla está completamente vacía
+  if (tableBody && !tableBody.querySelector('.ticket-row')) {
     tableBody.innerHTML = `
       <tr>
         <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--on-surface-variant);">
           <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
             <span class="spinner spinner-primary"></span>
-            <span>Cargando tickets desde el servidor...</span>
+            <span>Sincronizando tickets desde el servidor...</span>
           </div>
         </td>
       </tr>
@@ -109,6 +136,7 @@ async function fetchTickets() {
   try {
     const data = await get(ENDPOINTS.TICKETS.BASE);
     allTickets = Array.isArray(data) ? data : [];
+    Store.setTickets(allTickets);
 
     // Si viene un parámetro ?q= en la URL, prellenar el campo de búsqueda
     const urlParams = new URLSearchParams(window.location.search);
@@ -121,7 +149,7 @@ async function fetchTickets() {
     applyFiltersAndRender();
   } catch (err) {
     console.error('Error al consultar tickets:', err);
-    if (tableBody) {
+    if (tableBody && !tableBody.querySelector('.ticket-row')) {
       tableBody.innerHTML = `
         <tr>
           <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--error);">
@@ -425,6 +453,7 @@ function setupModal() {
         });
 
         showToast(`Ticket #${createdTicket.code || createdTicket.id} registrado exitosamente.`, 'success');
+        Store.setTicket(createdTicket.id, createdTicket);
         form.reset();
         if (titleCharCounter) {
           titleCharCounter.textContent = '0 / 200';

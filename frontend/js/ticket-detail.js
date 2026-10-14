@@ -12,6 +12,7 @@
 import { get, post, put, ApiError } from './api.js';
 import { ENDPOINTS } from './config.js';
 import { getUser, hasRole } from './session.js';
+import { Store } from './store.js';
 import {
   formatDate,
   formatSla,
@@ -43,6 +44,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupAuditButton();
   setupRefreshButton();
 
+  // 1. Carga inmediata desde el almacén de cliente si ya fue consultado
+  const cached = Store.getTicket(ticketId);
+  if (cached) {
+    currentTicket = cached;
+    renderTicketData(currentTicket);
+    updateStepper(currentTicket.statusName);
+    renderLifecycleActions(currentTicket);
+  }
+
+  // 2. Consulta y sincronización en segundo plano con la API
   await loadTicketDetails();
   await Promise.all([loadComments(), loadHistory()]);
 });
@@ -72,6 +83,7 @@ async function loadTicketDetails() {
     if (!data) throw new Error('El ticket solicitado no fue encontrado.');
 
     currentTicket = data;
+    Store.setTicket(numericId, data);
     renderTicketData(currentTicket);
     updateStepper(currentTicket.statusName);
     renderLifecycleActions(currentTicket);
@@ -308,6 +320,7 @@ async function executeStatusTransition(newStatus, actionLabel) {
     });
 
     currentTicket = updated;
+    Store.setTicket(ticketId, updated);
     showToast(`Estado actualizado a ${newStatus} exitosamente.`, 'success');
     renderTicketData(currentTicket);
     updateStepper(currentTicket.statusName);
@@ -325,10 +338,18 @@ async function loadTechniciansSelect() {
   const select = document.getElementById('assign-technician-select');
   if (!select) return;
 
-  try {
+  const cachedTechs = Store.getTechnicians();
+  if (cachedTechs && cachedTechs.length > 0) {
+    select.innerHTML = '<option value="">Seleccione un técnico disponible...</option>' +
+      cachedTechs.map((t) => `<option value="${t.id}">${escapeHtml(t.fullName || t.email)} (${escapeHtml(t.email)})</option>`).join('');
+  } else {
     select.innerHTML = '<option value="">Cargando técnicos disponibles...</option>';
+  }
+
+  try {
     const techs = await get(ENDPOINTS.CATALOGS.TECHNICIANS);
     const list = Array.isArray(techs) ? techs : [];
+    Store.setTechnicians(list);
 
     if (list.length === 0) {
       select.innerHTML = '<option value="">No hay técnicos activos registrados</option>';
@@ -556,6 +577,7 @@ function setupModals() {
         const updated = await put(ENDPOINTS.TICKETS.ASSIGN(ticketId), { technicianId });
 
         currentTicket = updated;
+        Store.setTicket(ticketId, updated);
         showToast(`Ticket asignado exitosamente a ${updated.assignedTechnicianName}.`, 'success');
         closeModal(assignModalId);
 

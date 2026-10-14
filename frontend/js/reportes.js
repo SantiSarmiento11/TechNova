@@ -6,6 +6,7 @@
 import { get } from './api.js';
 import { ENDPOINTS } from './config.js';
 import { requireRole, hasRole } from './session.js';
+import { Store } from './store.js';
 import { escapeHtml, showToast } from './ui.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -16,6 +17,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   setupRefreshHandler();
+
+  // 1. Carga inmediata desde el almacén de cliente
+  const cached = Store.getMetrics();
+  if (cached && cached.totalTickets !== undefined) {
+    renderHeaderMetrics(cached);
+    renderStatusDistribution(cached);
+    renderCategoryDistribution(cached);
+    renderTechnicianWorkloads(cached.technicianWorkloads || []);
+  }
+
+  // 2. Consulta y sincronización en segundo plano
   await loadDashboardReport();
 });
 
@@ -74,6 +86,7 @@ async function loadDashboardReport() {
     const data = await get(ENDPOINTS.ADMIN.DASHBOARD);
     if (!data) throw new Error('No se recibieron datos de métricas del servidor.');
 
+    Store.setMetrics(data);
     renderHeaderMetrics(data);
     renderStatusDistribution(data);
     renderCategoryDistribution(data);

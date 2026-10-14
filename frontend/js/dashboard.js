@@ -6,6 +6,7 @@
 import { get, post, ApiError } from './api.js';
 import { ENDPOINTS } from './config.js';
 import { getUser, hasRole } from './session.js';
+import { Store } from './store.js';
 import {
   formatDate,
   formatSla,
@@ -24,6 +25,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupGreeting();
   setupModalHandlers();
   setupRefreshHandler();
+
+  // 1. Renderizado instantáneo de datos persistentes del backend (Cero parpadeo)
+  const cachedCats = Store.getCategories();
+  const cachedPrios = Store.getPriorities();
+  if (cachedCats && cachedCats.length > 0) {
+    availableCategories = cachedCats;
+  }
+  if (cachedPrios && cachedPrios.length > 0) {
+    availablePriorities = cachedPrios;
+  }
+  if (availableCategories.length > 0 && availablePriorities.length > 0) {
+    populateModalSelects();
+  }
+
+  const cachedMetrics = Store.getMetrics();
+  if (cachedMetrics) {
+    renderMetricsData(cachedMetrics);
+  }
+
+  const cachedTickets = Store.getTickets();
+  if (cachedTickets && cachedTickets.length > 0) {
+    renderRecentTicketsData(cachedTickets);
+  }
+
+  // 2. Sincronización en segundo plano con la API REST
   await loadCatalogs();
   await Promise.all([loadMetrics(), loadRecentTickets()]);
 });
@@ -74,6 +100,8 @@ async function loadCatalogs() {
     ]);
     availableCategories = Array.isArray(categories) ? categories : [];
     availablePriorities = Array.isArray(priorities) ? priorities : [];
+    Store.setCategories(availableCategories);
+    Store.setPriorities(availablePriorities);
     populateModalSelects();
   } catch (err) {
     console.error('Error cargando catálogos:', err);
@@ -106,52 +134,200 @@ function populateModalSelects() {
 }
 
 /**
- * Carga métricas cuantitativas desde GET /api/admin/dashboard (si es ADMIN)
- * o consolida métricas a partir del listado de tickets propio si es USER/TECHNICIAN.
+ * Renderiza los 4 contadores de KPIs cuantitativos en el encabezado.
  */
-async function loadMetrics() {
+function renderMetricsData(metrics) {
+  if (!metrics) return;
   const kpiTotal = document.getElementById('kpi-total-tickets');
   const kpiOpen = document.getElementById('kpi-open-tickets');
   const kpiProcess = document.getElementById('kpi-process-tickets');
   const kpiSla = document.getElementById('kpi-sla-compliance');
 
+  if (kpiTotal && metrics.total !== undefined) kpiTotal.textContent = metrics.total;
+  if (kpiOpen && metrics.open !== undefined) kpiOpen.textContent = metrics.open;
+  if (kpiProcess && metrics.inProcess !== undefined) kpiProcess.textContent = metrics.inProcess;
+  if (kpiSla && metrics.sla !== undefined) kpiSla.textContent = metrics.sla;
+}
+
+/**
+ * Carga métricas cuantitativas desde GET /api/admin/dashboard (si es ADMIN)
+ * o consolida métricas a partir del listado de tickets propio si es USER/TECHNICIAN.
+ */
+async function loadMetrics() {
   try {
+    let metricObj = null;
+
     if (hasRole('ADMIN')) {
-      // 1. Endpoint protegido exclusivo ADMIN: GET /api/admin/dashboard
       const data = await get(ENDPOINTS.ADMIN.DASHBOARD);
       if (data) {
-        if (kpiTotal) kpiTotal.textContent = data.totalTickets ?? 0;
-        if (kpiOpen) kpiOpen.textContent = data.openTickets ?? 0;
         const inProcess = (data.assignedTickets || 0) + (data.inProgressTickets || 0);
-        if (kpiProcess) kpiProcess.textContent = inProcess;
-        if (kpiSla) {
-          const percentage = data.slaCompliancePercentage != null
-            ? Number(data.slaCompliancePercentage).toFixed(1)
-            : '100.0';
-          kpiSla.textContent = `${percentage}%`;
-        }
-        return;
+        const percentage = data.slaCompliancePercentage != null
+          ? Number(data.slaCompliancePercentage).toFixed(1)
+          : '100.0';
+
+        metricObj = {
+          total: data.totalTickets ?? 0,
+          open: data.openTickets ?? 0,
+          inProcess,
+          sla: `${percentage}%`,
+        };
       }
+    } else {
+      const tickets = await get(ENDPOINTS.TICKETS.BASE);
+      const list = Array.isArray(tickets) ? tickets : [];
+      const total = list.length;
+      const open = list.filter((t) => t.statusName === 'ABIERTA').length;
+      const inProcess = list.filter((t) => t.statusName === 'ASIGNADA' || t.statusName === 'EN_PROCESO').length;
+      const resolved = list.filter((t) => t.statusName === 'RESUELTA' || t.statusName === 'CERRADA').length;
+      const rate = total > 0 ? ((resolved / total) * 100).toFixed(1) : '100.0';
+
+      metricObj = {
+        total,
+        open,
+        inProcess,
+        sla: `${rate}%`,
+      };
     }
 
-    // Para usuarios no-ADMIN (USER o TECHNICIAN): calcular métricas con sus tickets autorizados
-    const tickets = await get(ENDPOINTS.TICKETS.BASE);
-    const list = Array.isArray(tickets) ? tickets : [];
-
-    const total = list.length;
-    const open = list.filter((t) => t.statusName === 'ABIERTA').length;
-    const inProcess = list.filter((t) => t.statusName === 'ASIGNADA' || t.statusName === 'EN_PROCESO').length;
-    const resolved = list.filter((t) => t.statusName === 'RESUELTA' || t.statusName === 'CERRADA').length;
-
-    if (kpiTotal) kpiTotal.textContent = total;
-    if (kpiOpen) kpiOpen.textContent = open;
-    if (kpiProcess) kpiProcess.textContent = inProcess;
-    if (kpiSla) {
-      const rate = total > 0 ? ((resolved / total) * 100).toFixed(1) : '100.0';
-      kpiSla.textContent = `${rate}%`;
+    if (metricObj) {
+      Store.setMetrics(metricObj);
+      renderMetricsData(metricObj);
     }
   } catch (err) {
     console.error('Error cargando métricas:', err);
+  }
+}
+
+/**
+ * Renderiza la tabla de tickets recientes y el feed de actividad con datos activos.
+ */
+function renderRecentTicketsData(list) {
+  const tableBody = document.getElementById('ticketsTableBody');
+  const countText = document.getElementById('ticketCountText');
+  const activityList = document.getElementById('activityFeedList');
+
+  if (!tableBody) return;
+  if (!Array.isArray(list)) list = [];
+
+  if (countText) {
+    countText.textContent = `Mostrando ${Math.min(list.length, 6)} de ${list.length} ticket(s) registrados`;
+  }
+
+  if (list.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 3rem; color: var(--on-surface-variant);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <span class="material-symbols-outlined" style="font-size: 36px; color: var(--outline-variant);">inbox</span>
+            <p class="label-lg">No hay tickets registrados en esta vista</p>
+            <button class="btn btn-primary btn-sm" id="btnEmptyNewTicket">Crear Primer Ticket</button>
+          </div>
+        </td>
+      </tr>
+    `;
+    const emptyBtn = document.getElementById('btnEmptyNewTicket');
+    if (emptyBtn) emptyBtn.addEventListener('click', () => openModal('newTicketModal'));
+    if (activityList) {
+      activityList.innerHTML = `
+        <div style="padding: 1.5rem; text-align: center; color: var(--on-surface-variant); font-size: 0.85rem;">
+          Sin actividad reciente reportada.
+        </div>
+      `;
+    }
+    return;
+  }
+
+  const recent = list.slice(0, 6);
+
+  tableBody.innerHTML = recent
+    .map(
+      (t) => `
+      <tr class="ticket-row" onclick="window.location.href='ticket-detail.html?id=${t.id}'" style="cursor: pointer;">
+        <td>
+          <span style="font-weight: 700; color: var(--primary); font-family: var(--font-family); font-size: 0.95rem;">
+            ${escapeHtml(t.code || `TK-${String(t.id).padStart(4, '0')}`)}
+          </span>
+        </td>
+        <td style="max-width: 320px;">
+          <div style="font-weight: 600; color: var(--on-surface); line-height: 1.35; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${escapeHtml(t.title)}
+          </div>
+        </td>
+        <td>
+          <span style="font-weight: 600; font-size: 0.825rem; letter-spacing: 0.05em; color: var(--on-surface-variant);">
+            ${escapeHtml(t.categoryName || 'GENERAL')}
+          </span>
+        </td>
+        <td>
+          ${getPriorityBadge(t.priorityName)}
+        </td>
+        <td>
+          ${getStatusBadge(t.statusName)}
+        </td>
+        <td>
+          <div style="line-height: 1.25;">
+            <div style="font-weight: 600; color: var(--on-surface); font-size: 0.9rem;">
+              ${escapeHtml(t.requesterName || 'Usuario')}
+            </div>
+            <div style="font-size: 0.775rem; color: var(--on-surface-variant);">
+              ${escapeHtml(t.requesterEmail || '')}
+            </div>
+          </div>
+        </td>
+        <td>
+          <div style="color: ${t.assignedTechnicianName ? 'var(--on-surface)' : 'var(--outline)'}; font-style: ${t.assignedTechnicianName ? 'normal' : 'italic'}; font-size: 0.9rem;">
+            ${escapeHtml(t.assignedTechnicianName || 'Sin asignar')}
+          </div>
+        </td>
+        <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
+          ${formatSla(t.dueDate, t.statusName)}
+        </td>
+        <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
+          ${formatDate(t.updatedAt || t.createdAt)}
+        </td>
+      </tr>
+    `
+    )
+    .join('');
+
+  if (activityList) {
+    activityList.innerHTML = recent.slice(0, 4).map((t) => {
+      let icon = 'add_circle';
+      let iconColor = 'var(--primary)';
+      let desc = `Ticket creado por <strong>${escapeHtml(t.requesterName || 'Usuario')}</strong>`;
+
+      if (t.statusName === 'ASIGNADA') {
+        icon = 'person_add';
+        iconColor = 'var(--secondary)';
+        desc = `Asignado a <strong>${escapeHtml(t.assignedTechnicianName || 'Técnico')}</strong>`;
+      } else if (t.statusName === 'EN_PROCESO') {
+        icon = 'engineering';
+        iconColor = 'var(--primary-container)';
+        desc = `Técnico atendiendo incidencia activa`;
+      } else if (t.statusName === 'RESUELTA') {
+        icon = 'check_circle';
+        iconColor = 'var(--tertiary)';
+        desc = `Marcado como resuelto por el técnico`;
+      } else if (t.statusName === 'CERRADA') {
+        icon = 'verified';
+        iconColor = 'var(--outline)';
+        desc = `Ticket confirmado y cerrado formalmente`;
+      }
+
+      return `
+        <div class="timeline-item">
+          <div class="timeline-icon" style="color: ${iconColor};">
+            <span class="material-symbols-outlined" style="font-size: 16px;">${icon}</span>
+          </div>
+          <p class="body-sm" style="color: var(--on-surface); line-height: 1.4;">
+            ${desc} en <a href="ticket-detail.html?id=${t.id}" style="color: var(--primary); font-weight: 700;">#${escapeHtml(t.code || `TK-${t.id}`)}</a>
+          </p>
+          <span class="code-sm" style="color: var(--on-surface-variant); font-size: 0.75rem;">
+            ${formatDate(t.updatedAt || t.createdAt)}
+          </span>
+        </div>
+      `;
+    }).join('');
   }
 }
 
@@ -160,162 +336,42 @@ async function loadMetrics() {
  */
 async function loadRecentTickets() {
   const tableBody = document.getElementById('ticketsTableBody');
-  const countText = document.getElementById('ticketCountText');
-  const activityList = document.getElementById('activityFeedList');
-
   if (!tableBody) return;
 
-  try {
+  // Solo mostrar spinner si la tabla está completamente vacía y no hay caché previo
+  if (!tableBody.querySelector('.ticket-row')) {
     tableBody.innerHTML = `
       <tr>
         <td colspan="9" style="text-align: center; padding: 2rem; color: var(--on-surface-variant);">
           <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
             <span class="spinner spinner-primary"></span>
-            <span>Cargando tickets en tiempo real desde el backend...</span>
+            <span>Sincronizando tickets en tiempo real desde el backend...</span>
           </div>
         </td>
       </tr>
     `;
+  }
 
-    // Consultar tickets autorizados por rol mediante GET /api/tickets
+  try {
     const tickets = await get(ENDPOINTS.TICKETS.BASE);
     const list = Array.isArray(tickets) ? tickets : [];
-
-    if (countText) {
-      countText.textContent = `Mostrando ${Math.min(list.length, 6)} de ${list.length} ticket(s) registrados`;
-    }
-
-    if (list.length === 0) {
+    Store.setTickets(list);
+    renderRecentTicketsData(list);
+  } catch (err) {
+    console.error('Error al cargar tickets recientes:', err);
+    if (!tableBody.querySelector('.ticket-row')) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="9" style="text-align: center; padding: 3rem; color: var(--on-surface-variant);">
+          <td colspan="9" style="text-align: center; padding: 2rem; color: var(--error);">
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-              <span class="material-symbols-outlined" style="font-size: 36px; color: var(--outline-variant);">inbox</span>
-              <p class="label-lg">No hay tickets registrados en esta vista</p>
-              <button class="btn btn-primary btn-sm" id="btnEmptyNewTicket">Crear Primer Ticket</button>
+              <span class="material-symbols-outlined" style="font-size: 28px;">error</span>
+              <p class="label-md">Error al sincronizar con el backend de tickets.</p>
+              <span style="font-size: 0.8rem; color: var(--on-surface-variant);">${escapeHtml(err.message || '')}</span>
             </div>
           </td>
         </tr>
       `;
-      const emptyBtn = document.getElementById('btnEmptyNewTicket');
-      if (emptyBtn) emptyBtn.addEventListener('click', () => openModal('newTicketModal'));
-      if (activityList) {
-        activityList.innerHTML = `
-          <div style="padding: 1.5rem; text-align: center; color: var(--on-surface-variant); font-size: 0.85rem;">
-            Sin actividad reciente reportada.
-          </div>
-        `;
-      }
-      return;
     }
-
-    // Tomar los 6 tickets más recientes para la tabla del dashboard
-    const recent = list.slice(0, 6);
-
-    tableBody.innerHTML = recent
-      .map(
-        (t) => `
-        <tr class="ticket-row" onclick="window.location.href='ticket-detail.html?id=${t.id}'" style="cursor: pointer;">
-          <td>
-            <span style="font-weight: 700; color: var(--primary); font-family: var(--font-family); font-size: 0.95rem;">
-              ${escapeHtml(t.code || `TK-${String(t.id).padStart(4, '0')}`)}
-            </span>
-          </td>
-          <td style="max-width: 320px;">
-            <div style="font-weight: 600; color: var(--on-surface); line-height: 1.35; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              ${escapeHtml(t.title)}
-            </div>
-          </td>
-          <td>
-            <span style="font-weight: 600; font-size: 0.825rem; letter-spacing: 0.05em; color: var(--on-surface-variant);">
-              ${escapeHtml(t.categoryName || 'GENERAL')}
-            </span>
-          </td>
-          <td>
-            ${getPriorityBadge(t.priorityName)}
-          </td>
-          <td>
-            ${getStatusBadge(t.statusName)}
-          </td>
-          <td>
-            <div style="line-height: 1.25;">
-              <div style="font-weight: 600; color: var(--on-surface); font-size: 0.9rem;">
-                ${escapeHtml(t.requesterName || 'Usuario')}
-              </div>
-              <div style="font-size: 0.775rem; color: var(--on-surface-variant);">
-                ${escapeHtml(t.requesterEmail || '')}
-              </div>
-            </div>
-          </td>
-          <td>
-            <div style="color: ${t.assignedTechnicianName ? 'var(--on-surface)' : 'var(--outline)'}; font-style: ${t.assignedTechnicianName ? 'normal' : 'italic'}; font-size: 0.9rem;">
-              ${escapeHtml(t.assignedTechnicianName || 'Sin asignar')}
-            </div>
-          </td>
-          <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
-            ${formatSla(t.dueDate, t.statusName)}
-          </td>
-          <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
-            ${formatDate(t.updatedAt || t.createdAt)}
-          </td>
-        </tr>
-      `
-      )
-      .join('');
-
-    // Actualizar Feed de Actividad con datos reales del backend
-    if (activityList) {
-      activityList.innerHTML = recent.slice(0, 4).map((t) => {
-        let icon = 'add_circle';
-        let iconColor = 'var(--primary)';
-        let desc = `Ticket creado por <strong>${escapeHtml(t.requesterName || 'Usuario')}</strong>`;
-
-        if (t.statusName === 'ASIGNADA') {
-          icon = 'person_add';
-          iconColor = 'var(--secondary)';
-          desc = `Asignado a <strong>${escapeHtml(t.assignedTechnicianName || 'Técnico')}</strong>`;
-        } else if (t.statusName === 'EN_PROCESO') {
-          icon = 'engineering';
-          iconColor = 'var(--primary-container)';
-          desc = `Técnico atendiendo incidencia activa`;
-        } else if (t.statusName === 'RESUELTA') {
-          icon = 'check_circle';
-          iconColor = 'var(--tertiary)';
-          desc = `Marcado como resuelto por el técnico`;
-        } else if (t.statusName === 'CERRADA') {
-          icon = 'verified';
-          iconColor = 'var(--outline)';
-          desc = `Ticket confirmado y cerrado formalmente`;
-        }
-
-        return `
-          <div class="timeline-item">
-            <div class="timeline-icon" style="color: ${iconColor};">
-              <span class="material-symbols-outlined" style="font-size: 16px;">${icon}</span>
-            </div>
-            <p class="body-sm" style="color: var(--on-surface); line-height: 1.4;">
-              ${desc} en <a href="ticket-detail.html?id=${t.id}" style="color: var(--primary); font-weight: 700;">#${escapeHtml(t.code || `TK-${t.id}`)}</a>
-            </p>
-            <span class="code-sm" style="color: var(--on-surface-variant); font-size: 0.75rem;">
-              ${formatDate(t.updatedAt || t.createdAt)}
-            </span>
-          </div>
-        `;
-      }).join('');
-    }
-  } catch (err) {
-    console.error('Error al cargar tickets recientes:', err);
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="9" style="text-align: center; padding: 2rem; color: var(--error);">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-            <span class="material-symbols-outlined" style="font-size: 28px;">error</span>
-            <p class="label-md">Error al sincronizar con el backend de tickets.</p>
-            <span style="font-size: 0.8rem; color: var(--on-surface-variant);">${escapeHtml(err.message || '')}</span>
-          </div>
-        </td>
-      </tr>
-    `;
   }
 }
 
@@ -397,6 +453,7 @@ function setupModalHandlers() {
         });
 
         showToast(`Ticket #${createdTicket.code || createdTicket.id} registrado exitosamente.`, 'success');
+        Store.setTicket(createdTicket.id, createdTicket);
         form.reset();
         if (titleCharCounter) {
           titleCharCounter.textContent = '0 / 200';
