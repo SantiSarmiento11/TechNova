@@ -23,7 +23,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Accesibilidad y atajos de teclado globales
   setupKeyboardShortcuts();
+
+  // Detección de conectividad de red y reconexión
+  setupNetworkStatusListeners();
 });
+
+function setupNetworkStatusListeners() {
+  window.addEventListener('offline', () => {
+    showToast('Conexión con la red interrumpida. Las operaciones con el backend no estarán disponibles.', 'warning');
+  });
+
+  window.addEventListener('online', () => {
+    showToast('Conexión de red restablecida exitosamente.', 'success');
+  });
+}
 
 function setupKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
