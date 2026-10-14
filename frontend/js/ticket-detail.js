@@ -14,6 +14,7 @@ import { ENDPOINTS } from './config.js';
 import { getUser, hasRole } from './session.js';
 import {
   formatDate,
+  formatSla,
   getStatusBadge,
   getPriorityBadge,
   escapeHtml,
@@ -107,7 +108,7 @@ function renderTicketData(ticket) {
   }
 
   if (elCategory) elCategory.textContent = ticket.categoryName || 'GENERAL';
-  if (elSla) elSla.textContent = formatDate(ticket.dueDate);
+  if (elSla) elSla.innerHTML = formatSla(ticket.dueDate, ticket.statusName);
   if (elCreated) elCreated.textContent = formatDate(ticket.createdAt);
   if (elUpdated) elUpdated.textContent = formatDate(ticket.updatedAt || ticket.createdAt);
 }
