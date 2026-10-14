@@ -2,209 +2,351 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Detalle de Incidencia • TechNova IT Helpdesk</title>
-
-  <!-- Tipografía Plus Jakarta Sans y Material Symbols -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-
-  <!-- Tailwind CSS & Lumina Theme -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module" src="js/tailwind-theme.js"></script>
-  <link rel="stylesheet" href="css/lumina-theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle de Incidencia - Lumina Desk | TechNova</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
 </head>
-<body class="bg-surface-container-lowest font-body text-slate-800 antialiased lumina-bg">
+<body class="app-shell">
 
-  <main class="w-full pl-64 pt-16 min-h-screen">
-    <div id="ticket-detail-container" class="px-8 py-8 flex flex-col gap-6 max-w-7xl mx-auto w-full">
-
-      <!-- Breadcrumb y Título -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
-        <div class="flex flex-col gap-1.5">
-          <div class="flex items-center gap-2 text-xs">
-            <a href="tickets.html" class="inline-flex items-center gap-1 text-slate-500 hover:text-primary font-semibold transition-colors">
-              <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-              <span>Tickets</span>
-            </a>
-            <span class="text-slate-300">/</span>
-            <span id="ticket-code-badge" class="font-bold text-primary px-2.5 py-0.5 rounded-lg bg-primary/10">TK-0000</span>
-          </div>
-          <h1 id="ticket-title-display" class="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
-            Cargando información del ticket...
-          </h1>
-        </div>
-
-        <!-- Badges de Estado y Prioridad -->
-        <div class="flex items-center gap-2.5" id="ticket-badges-header">
-          <!-- Renderizado dinámico -->
-        </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-brand">
+        <img alt="Lumina Desk Logo" class="sidebar-logo" src="https://lh3.googleusercontent.com/aida/AEtjO1Wx5heek0GX1PLstwZDXrsmbG9tsnPNMvbh9xUnUoptc8eIMNM6hBzDv9sjeimzyUfZV1Zfoc0YsZonduRP4ww6tcn1SLLTsMPI2GSzoCGzBdqBBk94feyAfePrHPxdBan64Lyi5aQ49YjGvhNuFC_NV-ktSOv17dKAZuG6T_HVjFrPnUPH1xFFrwbFPqICxPv9JX7ftsmEqZLPdFATbUH33O3NdUXwWIRXo1HBiooUEG8LNbGvlH8FLsM">
+        <span class="sidebar-brand-name">TechNova</span>
       </div>
 
-      <!-- Stepper Horizontal del Ciclo de Vida -->
-      <section class="bg-white rounded-2xl p-6 border border-slate-200/70 shadow-sm" id="stepper-card">
-        <div class="relative w-full max-w-4xl mx-auto py-2">
-          <!-- Línea base -->
-          <div class="absolute top-5 left-10 right-10 h-1 bg-slate-100 rounded-full -translate-y-1/2"></div>
-          <!-- Línea activa de progreso -->
-          <div id="stepper-progress-bar" class="absolute top-5 left-10 h-1 bg-primary-container rounded-full -translate-y-1/2 transition-all duration-500" style="width: 0%;"></div>
-          <!-- Pasos -->
-          <div class="relative flex items-center justify-between" id="stepper-steps">
-            <!-- 5 pasos dinámicos -->
+      <nav class="sidebar-nav">
+        <a class="sidebar-link" href="dashboard.html">
+          <span class="material-symbols-outlined">space_dashboard</span>
+          <span>Panel Principal</span>
+        </a>
+        <a class="sidebar-link active" href="tickets.html">
+          <span class="material-symbols-outlined">confirmation_number</span>
+          <span>Tickets</span>
+        </a>
+        <a class="sidebar-link" href="reportes.html">
+          <span class="material-symbols-outlined">insights</span>
+          <span>Reportes y Métricas</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" style="background: var(--primary-fixed); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-full);">
+          <span class="material-symbols-outlined" style="font-size: 18px;">person</span>
+        </div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-name">Usuario</span>
+          <span class="sidebar-user-role">Cargando...</span>
+        </div>
+      </div>
+      <button onclick="logoutUser()" title="Cerrar sesión" style="color: var(--on-surface-variant); display: flex;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Topbar Header -->
+  <header class="topbar">
+    <div class="topbar-search">
+      <span class="material-symbols-outlined">search</span>
+      <input type="search" placeholder="Buscar ticket por ID o palabra clave..." onkeydown="if(event.key==='Enter') window.location.href='tickets.html?q='+encodeURIComponent(this.value)">
+    </div>
+
+    <div class="topbar-actions">
+      <div class="topbar-pill">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--on-surface-variant);">filter_list</span>
+        <span style="color: var(--on-surface-variant); font-weight: 500;">Cola:</span>
+        <span style="font-weight: 700; color: var(--on-surface);">Detalle de Incidencia</span>
+      </div>
+
+      <button class="topbar-icon-btn" id="topbarNotifBtn" title="Notificaciones">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="topbar-badge"></span>
+      </button>
+
+      <div class="topbar-divider"></div>
+
+      <div class="topbar-profile" id="topbarProfile" title="Perfil de usuario (Clic para cerrar sesión)">
+        <div style="display: flex; flex-direction: column; text-align: right;">
+          <span class="sidebar-user-name">Usuario</span>
+          <span class="sidebar-user-role">Cargando...</span>
+        </div>
+        <div class="topbar-profile-avatar" style="background: var(--primary-fixed); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-full);">
+          <span class="material-symbols-outlined" style="font-size: 18px;">account_circle</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <div class="main-wrapper">
+    <!-- Ambient Glow Orbs -->
+    <div class="glow-orb" style="top: -5rem; left: 3rem; width: 500px; height: 420px; background: radial-gradient(circle, rgba(254, 243, 199, 0.45) 0%, transparent 70%); filter: blur(100px);"></div>
+    <div class="glow-orb" style="top: 18rem; right: 3rem; width: 460px; height: 460px; background: radial-gradient(circle, rgba(186, 230, 253, 0.45) 0%, transparent 70%); filter: blur(100px);"></div>
+
+    <main class="page-container">
+
+      <!-- Breadcrumbs & Title -->
+      <header class="page-header" style="align-items: flex-start;">
+        <div class="page-header-title-group">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <a href="tickets.html" style="display: inline-flex; align-items: center; gap: 0.25rem; color: var(--on-surface-variant); font-size: 0.8125rem; font-weight: 600;">
+              <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span>
+              <span>Volver a Tickets</span>
+            </a>
+            <span style="color: var(--outline-variant);">/</span>
+            <span class="code-sm" id="breadcrumb-id" style="font-weight: 700; color: var(--primary); background: var(--surface-container-high); padding: 0.15rem 0.5rem; border-radius: var(--radius-sm);">TK-0000</span>
+          </div>
+
+          <h1 class="headline-xl" id="ticket-title">Cargando incidencia...</h1>
+        </div>
+
+        <div class="page-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+          <span id="ticket-priority"><span class="badge badge-media">--</span></span>
+          <span id="ticket-status"><span class="badge badge-cerrada">--</span></span>
+        </div>
+      </header>
+
+      <!-- Stepper Lifecycle Progress (Strict State Machine) -->
+      <section class="card">
+        <div class="stepper">
+          <div class="stepper-track"></div>
+          <div class="stepper-progress" style="width: 0%;"></div>
+
+          <!-- Node 1: ABIERTA -->
+          <div class="stepper-node active" data-step="ABIERTA">
+            <div class="stepper-circle">1</div>
+            <span class="stepper-label">1. Abierta</span>
+          </div>
+
+          <!-- Node 2: ASIGNADA -->
+          <div class="stepper-node" data-step="ASIGNADA">
+            <div class="stepper-circle">2</div>
+            <span class="stepper-label">2. Asignada</span>
+          </div>
+
+          <!-- Node 3: EN_PROCESO -->
+          <div class="stepper-node" data-step="EN_PROCESO">
+            <div class="stepper-circle">3</div>
+            <span class="stepper-label">3. En Proceso</span>
+          </div>
+
+          <!-- Node 4: RESUELTA -->
+          <div class="stepper-node" data-step="RESUELTA">
+            <div class="stepper-circle">4</div>
+            <span class="stepper-label">4. Resuelta</span>
+          </div>
+
+          <!-- Node 5: CERRADA -->
+          <div class="stepper-node" data-step="CERRADA">
+            <div class="stepper-circle">5</div>
+            <span class="stepper-label">5. Cerrada</span>
           </div>
         </div>
       </section>
 
-      <!-- Cuadrícula Principal (2 Columnas) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Two-Column Grid: Details & Discussion + Actions & Metadata -->
+      <div class="ticket-detail-grid">
         
-        <!-- Columna Izquierda: Descripción y Hilo de Comentarios (8 columnas) -->
-        <div class="lg:col-span-8 flex flex-col gap-6">
+        <!-- Left: Incident Description & Comments -->
+        <div style="display: flex; flex-direction: column; gap: 1.75rem;">
           
-          <!-- Descripción -->
-          <section class="bg-white rounded-2xl p-6 border border-slate-200/70 shadow-sm">
-            <div class="flex items-center gap-2.5 mb-3">
-              <span class="material-symbols-outlined text-primary text-[22px]">subject</span>
-              <h2 class="text-base font-bold text-slate-800">Descripción de la Incidencia</h2>
+          <!-- Incident Description Card -->
+          <section class="card">
+            <div class="card-header" style="margin-bottom: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="material-symbols-outlined" style="color: var(--primary);">subject</span>
+                <h2 class="headline-md">Descripción de la Incidencia</h2>
+              </div>
             </div>
-            <p id="ticket-description-display" class="text-xs lg:text-sm text-slate-700 leading-relaxed pl-8 whitespace-pre-line">
-              Cargando...
+            <p class="body-md" id="ticket-description" style="color: var(--on-surface); line-height: 1.6; white-space: pre-wrap;">
+              Cargando descripción...
             </p>
           </section>
 
-          <!-- Comentarios y Seguimiento -->
-          <section class="bg-white rounded-2xl p-6 border border-slate-200/70 shadow-sm flex flex-col gap-5">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-              <div class="flex items-center gap-2.5">
-                <span class="material-symbols-outlined text-primary text-[22px]">forum</span>
-                <h2 class="text-base font-bold text-slate-800">
-                  Comentarios y Seguimiento <span id="comments-count-badge" class="text-xs font-normal text-slate-400">(0)</span>
-                </h2>
+          <!-- Comments & Discussion Section -->
+          <section class="card">
+            <div class="card-header">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="material-symbols-outlined" style="color: var(--primary);">forum</span>
+                <h2 class="headline-md">Comentarios y Seguimiento <span id="commentsCount">(0)</span></h2>
               </div>
-              <span id="comments-lock-badge" class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider bg-slate-100 px-2.5 py-1 rounded-lg">
-                Canal Activo
-              </span>
+              <span class="badge" style="background: var(--surface-container-low); color: var(--on-surface-variant);">Trazabilidad REST</span>
             </div>
 
-            <!-- Lista de Comentarios -->
-            <div id="comments-list" class="space-y-4">
-              <!-- Renderizado dinámico -->
+            <!-- Empty State -->
+            <div id="emptyCommentsState" style="padding: 2.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: var(--surface-container-low); border-radius: var(--radius-xl); margin-bottom: 1.5rem;">
+              <div style="width: 3rem; height: 3rem; border-radius: var(--radius-full); background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--on-surface-variant); margin-bottom: 0.75rem;">
+                <span class="material-symbols-outlined" style="font-size: 24px;">chat_bubble_outline</span>
+              </div>
+              <p class="label-lg" style="color: var(--on-surface-variant);">Sin comentarios registrados</p>
+              <p class="body-sm" style="color: var(--outline);">Inicie una conversación técnica o deje notas de resolución sobre este ticket.</p>
             </div>
 
-            <!-- Formulario de Nuevo Comentario -->
-            <div id="comment-form-container" class="pt-2">
-              <form id="comment-form" class="space-y-3">
-                <label class="block text-xs font-bold text-slate-700" for="comment-input">
-                  Agregar nota o respuesta técnica
-                </label>
-                <div class="relative">
-                  <textarea id="comment-input" name="content" rows="3" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all resize-y" placeholder="Escriba su actualización o respuesta técnica..." required maxlength="2000"></textarea>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-[11px] text-slate-400">Máximo 2000 caracteres.</span>
-                  <button id="btn-submit-comment" type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-white font-semibold text-xs shadow-md transition-all active:scale-[0.98]">
-                    <span class="material-symbols-outlined text-[16px]">send</span>
-                    <span>Publicar Comentario</span>
-                  </button>
-                </div>
-              </form>
+            <!-- Comments List Container -->
+            <div id="commentsList">
+              <!-- Rendered by js/ticket-detail.js -->
             </div>
 
+            <!-- New Comment Box -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 1px solid var(--surface-container-low); padding-top: 1rem;">
+              <label class="form-label" for="comment-input">Agregar comentario o nota técnica</label>
+              <textarea class="form-textarea" id="comment-input" rows="3" placeholder="Escriba su actualización o respuesta técnica autorizada..."></textarea>
+              <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" id="submitCommentBtn">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
+                  <span>Publicar Comentario</span>
+                </button>
+              </div>
+            </div>
           </section>
 
         </div>
 
-        <!-- Columna Derecha: Metadatos, Acciones y Auditoría (4 columnas) -->
-        <div class="lg:col-span-4 flex flex-col gap-6">
-
-          <!-- Metadatos de la Solicitud -->
-          <section class="bg-white rounded-2xl p-6 border border-slate-200/70 shadow-sm flex flex-col gap-4">
-            <div class="flex items-center justify-between pb-1 border-b border-slate-100">
-              <h3 class="text-sm font-bold text-slate-800">Detalles de la Solicitud</h3>
-              <span class="material-symbols-outlined text-slate-400 text-[18px]">info</span>
+        <!-- Right: Metadata & Actions -->
+        <aside style="display: flex; flex-direction: column; gap: 1.5rem;">
+          
+          <!-- Ticket Metadata Card -->
+          <section class="card">
+            <div class="card-header">
+              <h3 class="headline-md">Detalles de la Solicitud</h3>
+              <span class="material-symbols-outlined" style="color: var(--on-surface-variant);">info</span>
             </div>
 
-            <dl class="space-y-3 text-xs">
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500">Código</dt>
-                <dd id="meta-code" class="font-bold text-slate-800 font-mono">-</dd>
+            <dl class="meta-list">
+              <div class="meta-row">
+                <dt class="meta-label">Código</dt>
+                <dd class="meta-val code-sm" id="ticket-code" style="background: var(--surface-container-low); padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); color: var(--primary); font-weight: 700;">--</dd>
               </div>
 
-              <div class="flex items-start justify-between">
-                <dt class="text-slate-500 pt-0.5">Solicitante</dt>
-                <dd class="text-right">
-                  <span id="meta-requester-name" class="block font-semibold text-slate-800">-</span>
-                  <span id="meta-requester-email" class="block text-[11px] text-slate-400">-</span>
+              <div class="meta-row">
+                <dt class="meta-label">Solicitante</dt>
+                <dd style="text-align: right;">
+                  <div class="meta-val" id="ticket-requester">--</div>
+                  <div class="code-sm" id="ticket-email" style="color: var(--on-surface-variant); font-size: 0.75rem;">--</div>
                 </dd>
               </div>
 
-              <div class="flex items-start justify-between">
-                <dt class="text-slate-500 pt-0.5">Técnico Asignado</dt>
-                <dd class="text-right">
-                  <span id="meta-tech-name" class="block font-semibold text-slate-800 italic text-slate-400">Sin asignar</span>
-                  <span id="meta-tech-email" class="block text-[11px] text-slate-400"></span>
-                </dd>
+              <div class="meta-row">
+                <dt class="meta-label">Técnico Responsable</dt>
+                <dd class="meta-val" id="ticket-technician" style="font-style: italic; color: var(--on-surface-variant);">Pendiente de asignación</dd>
               </div>
 
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500">Categoría</dt>
-                <dd id="meta-category" class="font-semibold text-slate-800">-</dd>
+              <div class="meta-row">
+                <dt class="meta-label">Categoría</dt>
+                <dd class="meta-val" id="ticket-category">--</dd>
               </div>
 
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500">Prioridad</dt>
-                <dd id="meta-priority">-</dd>
+              <div style="height: 1px; background: var(--surface-container-high); margin: 0.25rem 0;"></div>
+
+              <div class="meta-row">
+                <dt class="meta-label">Fecha Límite SLA</dt>
+                <dd class="meta-val code-sm" id="ticket-sla">--</dd>
               </div>
 
-              <div class="h-px bg-slate-100 my-1"></div>
-
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500">Fecha Límite SLA</dt>
-                <dd id="meta-due-date" class="font-mono text-slate-800 font-medium">-</dd>
+              <div class="meta-row">
+                <dt class="meta-label">Fecha de Registro</dt>
+                <dd class="meta-val code-sm" id="ticket-created">--</dd>
               </div>
 
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500">Fecha de Registro</dt>
-                <dd id="meta-created-at" class="font-mono text-slate-500">-</dd>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <dt class="text-slate-500">Última Actualización</dt>
-                <dd id="meta-updated-at" class="font-mono text-slate-500">-</dd>
+              <div class="meta-row">
+                <dt class="meta-label">Última Actualización</dt>
+                <dd class="meta-val code-sm" id="ticket-updated">--</dd>
               </div>
             </dl>
           </section>
 
-          <!-- Acciones del Ciclo de Vida -->
-          <section class="bg-white rounded-2xl p-6 border border-slate-200/70 shadow-sm flex flex-col gap-3">
-            <h3 class="text-sm font-bold text-slate-800 pb-1 border-b border-slate-100">
-              Acciones del Ciclo de Vida
-            </h3>
-            <div id="lifecycle-actions-panel" class="flex flex-col gap-2.5">
-              <!-- Botones condicionales según RBAC y estado -->
+          <!-- Lifecycle Actions Card (Controlled by State Machine) -->
+          <section class="card">
+            <h3 class="headline-md" style="margin-bottom: 0.5rem;">Acciones del Ciclo de Vida</h3>
+            <p class="body-sm" style="color: var(--on-surface-variant); margin-bottom: 1rem;">Transiciones gobernadas por la máquina de estados y RBAC</p>
+            
+            <div id="lifecycleActionsContainer">
+              <!-- Dynamically populated according to role and current ticket status -->
             </div>
           </section>
 
-          <!-- Historial de Auditoría (Trazabilidad Inmutable) -->
-          <section class="bg-white rounded-2xl p-6 border border-slate-200/70 shadow-sm flex flex-col gap-3">
-            <div class="flex items-center justify-between pb-1 border-b border-slate-100">
-              <h3 class="text-sm font-bold text-slate-800">Historial de Auditoría</h3>
-              <span class="material-symbols-outlined text-slate-400 text-[18px]">history</span>
+          <!-- Real Audit History Button -->
+          <button class="btn btn-secondary btn-full" id="btnOpenAuditModal" style="justify-content: space-between; padding: 1rem 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-symbols-outlined" style="color: var(--primary);">history</span>
+              <span>Bitácora de Auditoría (Trazabilidad)</span>
             </div>
-            <ul id="audit-history-timeline" class="space-y-3 text-xs">
-              <!-- Renderizado dinámico -->
-            </ul>
-          </section>
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </button>
 
-        </div>
+        </aside>
 
       </div>
 
-    </div>
-  </main>
+    </main>
+  </div>
 
-  <script type="module" src="js/pages/ticket.js"></script>
+  <!-- Modal Asignación de Técnico (Exclusivo ADMIN) -->
+  <div class="modal-overlay" id="assignTechModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="headline-md">Asignar Técnico Especialista</h3>
+        <button class="btn-icon" id="closeAssignModalBtn" type="button">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="assignTechForm">
+        <div class="modal-body">
+          <p class="body-sm" style="color: var(--on-surface-variant); margin-bottom: 1rem;">
+            Seleccione el técnico de soporte que atenderá este incidente. El ticket avanzará formalmente al estado <strong>ASIGNADA</strong>.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="assign-technician-select">Técnico de Soporte Disponible *</label>
+            <select class="form-select" id="assign-technician-select" required>
+              <option value="">Cargando técnicos...</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelAssignBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Asignar e Iniciar Ciclo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Historial de Auditoría Real -->
+  <div class="modal-overlay" id="auditHistoryModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span class="material-symbols-outlined" style="color: var(--primary);">manage_history</span>
+          <h3 class="headline-md">Historial de Auditoría Inmutable</h3>
+        </div>
+        <button class="btn-icon" id="closeAuditModalBtn" type="button">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="body-sm" style="color: var(--on-surface-variant); margin-bottom: 1rem;">
+          Registro criptográfico y cronológico de todas las transiciones de estado registradas en el backend:
+        </p>
+        <div id="auditTimelineContent">
+          <div style="text-align: center; padding: 1.5rem; color: var(--on-surface-variant);">
+            <span class="spinner spinner-primary"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('auditHistoryModal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/ticket-detail.js"></script>
 </body>
 </html>
