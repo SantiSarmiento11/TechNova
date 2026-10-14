@@ -167,6 +167,9 @@ export function openModal(titleHtml, bodyHtml) {
     if (e.target === backdrop) close();
   });
 
+  return { backdrop, close };
+}
+
 /**
  * Renderiza filas esqueleto animadas para transiciones de carga
  */
