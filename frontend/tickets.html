@@ -179,9 +179,22 @@
         </table>
       </section>
 
-      <!-- Counter footer -->
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.5rem;">
+      <!-- Counter & Pagination footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 0.5rem; flex-wrap: wrap; gap: 0.75rem;">
         <span id="ticketCountText" class="body-sm" style="color: var(--on-surface-variant);">Consultando tickets...</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem;" id="paginationControls">
+          <button class="btn btn-secondary btn-sm" id="btnPrevPage" disabled type="button">
+            <span class="material-symbols-outlined" style="font-size: 16px;">chevron_left</span>
+            <span>Anterior</span>
+          </button>
+          <span class="code-sm" id="pageNumberDisplay" style="color: var(--on-surface-variant); font-weight: 600; padding: 0.2rem 0.6rem; background: var(--surface-container); border-radius: var(--radius-sm);">
+            Página 1 de 1
+          </span>
+          <button class="btn btn-secondary btn-sm" id="btnNextPage" disabled type="button">
+            <span>Siguiente</span>
+            <span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+          </button>
+        </div>
       </div>
 
     </main>

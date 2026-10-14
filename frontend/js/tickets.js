@@ -19,10 +19,13 @@ import {
 let allCategories = [];
 let allPriorities = [];
 let allTickets = [];
+let currentPage = 0;
+const pageSize = 10;
 
 document.addEventListener('DOMContentLoaded', async () => {
   setupModal();
   setupFilterListeners();
+  setupPaginationControls();
   await loadCatalogs();
   await fetchTickets();
 });
@@ -174,6 +177,18 @@ function applyFiltersAndRender() {
     return matchesQuery && matchesEstado && matchesPriority && matchesCategory;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (currentPage >= totalPages) currentPage = totalPages - 1;
+  if (currentPage < 0) currentPage = 0;
+
+  const btnPrev = document.getElementById('btnPrevPage');
+  const btnNext = document.getElementById('btnNextPage');
+  const pageDisplay = document.getElementById('pageNumberDisplay');
+
+  if (btnPrev) btnPrev.disabled = currentPage === 0;
+  if (btnNext) btnNext.disabled = currentPage >= totalPages - 1;
+  if (pageDisplay) pageDisplay.textContent = `Página ${currentPage + 1} de ${totalPages}`;
+
   if (countText) {
     countText.textContent = `${filtered.length} ticket(s) encontrado(s) de un total de ${allTickets.length}`;
   }
@@ -195,7 +210,9 @@ function applyFiltersAndRender() {
     return;
   }
 
-  tableBody.innerHTML = filtered
+  const pagedItems = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+  tableBody.innerHTML = pagedItems
     .map(
       (t) => `
       <tr class="ticket-row" onclick="window.location.href='ticket-detail.html?id=${t.id}'" style="cursor: pointer;">
@@ -274,11 +291,42 @@ function setupFilterListeners() {
   const catSelect = document.getElementById('filter-categoria');
   const clearBtn = document.getElementById('clear-filters-btn');
 
-  if (searchInput) searchInput.addEventListener('input', applyFiltersAndRender);
-  if (estadoSelect) estadoSelect.addEventListener('change', applyFiltersAndRender);
-  if (prioSelect) prioSelect.addEventListener('change', applyFiltersAndRender);
-  if (catSelect) catSelect.addEventListener('change', applyFiltersAndRender);
+  const onFilterChange = () => {
+    currentPage = 0;
+    applyFiltersAndRender();
+  };
+
+  if (searchInput) searchInput.addEventListener('input', onFilterChange);
+  if (estadoSelect) estadoSelect.addEventListener('change', onFilterChange);
+  if (prioSelect) prioSelect.addEventListener('change', onFilterChange);
+  if (catSelect) catSelect.addEventListener('change', onFilterChange);
   if (clearBtn) clearBtn.addEventListener('click', resetFilters);
+}
+
+/**
+ * Configura los botones de paginación anterior y siguiente.
+ */
+function setupPaginationControls() {
+  const btnPrev = document.getElementById('btnPrevPage');
+  const btnNext = document.getElementById('btnNextPage');
+
+  if (btnPrev) {
+    btnPrev.addEventListener('click', () => {
+      if (currentPage > 0) {
+        currentPage--;
+        applyFiltersAndRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+
+  if (btnNext) {
+    btnNext.addEventListener('click', () => {
+      currentPage++;
+      applyFiltersAndRender();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 }
 
 /**
