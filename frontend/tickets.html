@@ -9,6 +9,30 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
+  <script>
+    (function() {
+      try {
+        var token = localStorage.getItem('technova_token');
+        if (!token) {
+          document.documentElement.style.display = 'none';
+          window.location.replace('index.html');
+          return;
+        }
+        var user = JSON.parse(localStorage.getItem('technova_user') || 'null');
+        var roles = (user && user.roles) || [];
+        var isAdmin = roles.some(function(r) {
+          var n = typeof r === 'string' ? r : (r.name || r.authority || '');
+          if (n.indexOf('ROLE_') === 0) n = n.substring(5);
+          return n.toUpperCase() === 'ADMIN';
+        });
+        if (isAdmin) {
+          document.documentElement.classList.add('is-admin');
+        }
+      } catch (e) {
+        window.location.replace('index.html');
+      }
+    })();
+  </script>
 </head>
 <body class="app-shell">
 
@@ -96,13 +120,6 @@
       <!-- Top Action & Title Header -->
       <header class="page-header">
         <div class="page-header-title-group">
-          <div class="page-badge-row">
-            <span class="badge" style="background-color: var(--primary-fixed); color: var(--primary);">
-              <span class="pulse" style="width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--primary);"></span>
-              Conexión REST Activa
-            </span>
-            <span class="label-sm" style="color: var(--on-surface-variant); text-transform: uppercase;">Mesa de Ayuda • Cola General</span>
-          </div>
           <h1 class="headline-xl">Tickets de Soporte</h1>
           <p class="body-md" style="color: var(--on-surface-variant);">Supervisión y trazabilidad integral de incidencias registradas en TechNova Solutions.</p>
         </div>
@@ -131,7 +148,7 @@
             <option value="EN_PROCESO">En Proceso</option>
             <option value="RESUELTA">Resuelta</option>
             <option value="CERRADA">Cerrada</option>
-          </select>
+          </select> 
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
@@ -195,26 +212,7 @@
             <span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
           </button>
         </div>
-      </div>
-
-      <!-- Status and Priority Legend -->
-      <section style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; background: var(--surface-container-low); border-radius: var(--radius-lg); font-size: 0.75rem; color: var(--on-surface-variant); flex-wrap: wrap; margin-top: 0.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <strong style="color: var(--on-surface);">Estados:</strong>
-          <span class="badge badge-abierta">Abierta</span>
-          <span class="badge badge-asignada">Asignada</span>
-          <span class="badge badge-en_proceso">En Proceso</span>
-          <span class="badge badge-resuelta">Resuelta</span>
-          <span class="badge badge-cerrada">Cerrada</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <strong style="color: var(--on-surface);">Prioridades:</strong>
-          <span class="badge badge-baja">Baja</span>
-          <span class="badge badge-media">Media</span>
-          <span class="badge badge-alta">Alta</span>
-          <span class="badge badge-critica">Crítica</span>
-        </div>
-      </section>
+      </div>  
 
     </main>
   </div>
