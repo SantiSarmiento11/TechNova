@@ -148,6 +148,37 @@ export function getPriorityBadge(priority) {
 }
 
 /**
+ * Formatea y evalúa visualmente la fecha límite SLA según el estado y tiempo restante.
+ * @param {string|Date} dueDate
+ * @param {string} statusName
+ * @returns {string} HTML formateado
+ */
+export function formatSla(dueDate, statusName) {
+  if (!dueDate) return '<span style="color: var(--outline); font-size: 0.825rem;">Sin SLA</span>';
+
+  const cleanStatus = (statusName || '').trim().toUpperCase();
+  if (cleanStatus === 'RESUELTA' || cleanStatus === 'CERRADA') {
+    return `<span style="color: #065f46; font-weight: 600; font-size: 0.825rem;">${formatDate(dueDate)}</span>`;
+  }
+
+  try {
+    const dueTime = new Date(dueDate).getTime();
+    const now = Date.now();
+    const diffHours = (dueTime - now) / (1000 * 60 * 60);
+
+    if (now > dueTime) {
+      return `<span style="color: #b91c1c; font-weight: 700; font-size: 0.825rem; display: inline-flex; align-items: center; gap: 0.2rem;" title="Tiempo SLA superado"><span class="material-symbols-outlined" style="font-size: 14px;">warning</span> Vencido (${formatDate(dueDate)})</span>`;
+    } else if (diffHours <= 2) {
+      return `<span style="color: #b45309; font-weight: 700; font-size: 0.825rem; display: inline-flex; align-items: center; gap: 0.2rem;" title="Menos de 2 horas para vencer"><span class="material-symbols-outlined" style="font-size: 14px;">schedule</span> En riesgo (${formatDate(dueDate)})</span>`;
+    } else {
+      return `<span style="color: var(--on-surface-variant); font-size: 0.825rem;">${formatDate(dueDate)}</span>`;
+    }
+  } catch {
+    return `<span style="font-size: 0.825rem; color: var(--on-surface-variant);">${formatDate(dueDate)}</span>`;
+  }
+}
+
+/**
  * Escapa caracteres HTML para prevenir XSS.
  * @param {string} str
  * @returns {string}
