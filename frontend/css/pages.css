@@ -248,3 +248,47 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Print Styles for Audit & Compliance Records
+   ========================================================================== */
+@media print {
+  .sidebar,
+  .topbar,
+  .sidebar-backdrop,
+  .mobile-menu-btn,
+  .glow-orb,
+  .page-actions,
+  #btnRefreshTicketDetail,
+  #btnOpenAuditModal,
+  #submitCommentBtn,
+  #comment-input,
+  #commentCharCount,
+  label[for="comment-input"],
+  .toast-container,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  .main-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .page-container {
+    padding: 0 !important;
+    gap: 1rem !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+    break-inside: avoid;
+  }
+}
+
