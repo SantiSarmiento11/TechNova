@@ -46,19 +46,26 @@
     <div id="integrationTestResults"></div>
   </div>
 
+  <div class="test-card">
+    <h2 class="headline-md" style="margin-bottom: 1rem; color: var(--on-surface);">5. Pruebas de Store y Caché Persistente (store.test.js)</h2>
+    <div id="storeTestResults"></div>
+  </div>
+
   <script type="module">
     import { runSessionTests } from './js/session.test.js';
     import { runApiTests } from './js/api.test.js';
     import { runUiTests } from './js/ui.test.js';
     import { runIntegrationTests } from './js/integration.test.js';
+    import { runStoreTests } from './js/store.test.js';
 
     document.addEventListener('DOMContentLoaded', () => {
       const sessionResults = runSessionTests();
       const apiResults = runApiTests();
       const uiResults = runUiTests();
       const integrationResults = runIntegrationTests();
+      const storeResults = runStoreTests();
 
-      const all = [...sessionResults, ...apiResults, ...uiResults, ...integrationResults];
+      const all = [...sessionResults, ...apiResults, ...uiResults, ...integrationResults, ...storeResults];
       const passedCount = all.filter(r => r.passed).length;
       const totalCount = all.length;
 
@@ -75,6 +82,7 @@
       renderList('apiTestResults', apiResults);
       renderList('uiTestResults', uiResults);
       renderList('integrationTestResults', integrationResults);
+      renderList('storeTestResults', storeResults);
     });
 
     function renderList(containerId, results) {
