@@ -73,27 +73,57 @@
 
 /* Animación de Ticket Flotante ajustada sobre fondo blanco puro */
 .login-video-wrapper {
-  margin-top: 0.5rem;
+  position: relative;
+  margin-top: 0.75rem;
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #ffffff;
   border-radius: var(--radius-2xl);
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .login-ticket-video {
   width: 100%;
   height: auto;
-  max-height: 350px;
+  max-height: 410px;
   object-fit: contain;
   display: block;
   background: #ffffff;
   border: none;
   outline: none;
-  pointer-events: none;
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* Ocultar cualquier control o botón nativo inyectado por navegadores como Opera o Chrome */
+.login-ticket-video::-webkit-media-controls,
+.login-ticket-video::-webkit-media-controls-enclosure,
+.login-ticket-video::-webkit-media-controls-panel,
+.login-ticket-video::-webkit-media-controls-start-playback-button,
+.login-ticket-video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Escudo transparente sobre el video que bloquea botones flotantes de Opera (ej. saltar al siguiente video) */
+.login-video-shield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 10;
+  cursor: default;
+  pointer-events: auto !important;
 }
 
 /* Tarjeta y formulario de inicio de sesión con elementos ampliados */
