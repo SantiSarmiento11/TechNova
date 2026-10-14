@@ -7,6 +7,7 @@ import { get, post } from './api.js';
 import { ENDPOINTS } from './config.js';
 import {
   formatDate,
+  formatSla,
   getStatusBadge,
   getPriorityBadge,
   escapeHtml,
@@ -235,7 +236,7 @@ function applyFiltersAndRender() {
           </div>
         </td>
         <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
-          ${formatDate(t.dueDate)}
+          ${formatSla(t.dueDate, t.statusName)}
         </td>
         <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
           ${formatDate(t.updatedAt || t.createdAt)}
