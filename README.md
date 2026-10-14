@@ -1,462 +1,283 @@
-# TechNova IT Helpdesk 🚀
+# TechNova IT Helpdesk
 
-Plataforma integral de soporte y gestión de incidencias de Tecnologías de la Información desarrollada para **TechNova Solutions**. El sistema optimiza el registro, categorización, asignación manual y ciclo de vida de tickets de soporte técnico, garantizando el cumplimiento de Acuerdos de Nivel de Servicio (SLA) y la trazabilidad de auditoría.
+> **Sistema Integral de Gestión de Incidencias, Control de SLA y Soporte Técnico TI**
 
----
-
-## 📌 1. Visión General y Objetivos
-
-- **Objetivo Central:** Proveer una solución centralizada y segura para la administración de tickets de soporte técnico, erradicando la dispersión de solicitudes por canales no auditables.
-- **Roles del Sistema:**
-  - `ADMIN`: Gestión operativa total, asignación manual de técnicos a tickets y visualización de analíticas operativas.
-  - `TECHNICIAN`: Atención, actualización de estados de incidentes y registro de comentarios de solución.
-  - `USER`: Empleados que registran solicitudes de asistencia, agregan comentarios y validan el cierre de sus tickets.
-- **Documentación de Requerimientos:** Consulta el documento completo de especificación de requisitos en [ERS TechNova.md](file:///C:/Users/Santiago%20Sarmiento/Desktop/TechNova/ERS%20TechNova.md).
-
----
-
-## 🛠️ 2. Tecnologías y Frameworks
-
-### Backend
-- **Lenguaje:** Java 21 (LTS)
-- **Framework Principal:** Spring Boot 3.x / 4.1.1
-- **Motor de Construcción:** Gradle 9.7.1
-- **Seguridad:** Spring Security 6 & JJWT (Java JWT 0.12.6) con cifrado BCrypt
-- **Acceso a Datos:** Spring Data JPA / Hibernate ORM con pool HikariCP
-- **Base de Datos:** PostgreSQL 15+
-- **Validación:** Jakarta Bean Validation (Hibernate Validator)
-- **Documentación de API:** SpringDoc OpenAPI 2.8.5 (Swagger UI)
-- **Testing:** JUnit 5, MockMvc, AssertJ
-
-### Frontend (Fase Posterior)
-- **Arquitectura:** Single Page Application (SPA)
-- **Tecnologías:** HTML5 semántico, CSS3 moderno (Variables CSS, Flexbox, Grid) y Vanilla JavaScript ES6+ puro (sin dependencias ni frameworks pesados).
+<p align="left">
+  <img src="https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java 21" />
+  <img src="https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?style=flat-square&logo=springboot&logoColor=white" alt="Spring Boot 4.1.1" />
+  <img src="https://img.shields.io/badge/Spring_Security-6-6DB33F?style=flat-square&logo=springsecurity&logoColor=white" alt="Spring Security" />
+  <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 15+" />
+  <img src="https://img.shields.io/badge/Gradle-9.7.1-02303A?style=flat-square&logo=gradle&logoColor=white" alt="Gradle 9.7.1" />
+  <img src="https://img.shields.io/badge/Swagger_OpenAPI-2.8.5-85EA2D?style=flat-square&logo=swagger&logoColor=black" alt="Swagger OpenAPI" />
+  <img src="https://img.shields.io/badge/JWT-0.12.6-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT" />
+  <img src="https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3" />
+</p>
 
 ---
 
-## 📂 3. Estructura de Directorios y Paquetes
+## 1. Contexto del Proyecto
 
-El proyecto sigue una arquitectura en capas limpia (*Layered Architecture*) que promueve la separación de responsabilidades y la alta mantenibilidad:
+**TechNova IT Helpdesk** es una plataforma web centralizada diseñada para optimizar y formalizar la atención de solicitudes de soporte técnico en **TechNova Solutions**.
+
+* **Problema que resuelve:** Elimina la dispersión e informalidad en el registro de incidencias (canales informales como correos o mensajería sin trazabilidad), evitando pérdida de solicitudes, demoras no controladas y ausencia de métricas operativas.
+* **Solución técnica:** Implementa un flujo estricto gobernado por una **máquina de estados**, control de tiempos de atención basados en **SLA por prioridad**, asignación supervisada por administradores, auditoría completa e integración con dashboards analíticos.
+
+---
+
+## 2. Tecnologías y Versiones
+
+| Capa / Módulo     | Tecnología / Herramienta                                                                                                                                                                                                                                                                                                                                                                                                 | Versión    | Propósito                                                            |
+|:----------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |:---------- |:-------------------------------------------------------------------- |
+| **Lenguaje**      | <img src="https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java" height="20" /> **Java**                                                                                                                                                                                                                                                                                    | `21 (LTS)` | Lenguaje backend principal con soporte para Virtual Threads.         |
+| **Framework**     | <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white" alt="Spring Boot" height="20" /> **Spring Boot**                                                                                                                                                                                                                                                            | `4.1.1`    | Core de la aplicación, configuración e inyección de dependencias.    |
+| **Seguridad**     | <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white" alt="Spring Security" height="20" /> **Spring Security** + <img src="https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT" height="20" /> **JJWT**                                                                                                | `0.12.6`   | Autenticación stateless mediante tokens JWT y control RBAC.          |
+| **Persistencia**  | <img src="https://img.shields.io/badge/Hibernate-59666C?style=flat-square&logo=hibernate&logoColor=white" alt="Hibernate" height="20" /> **Spring Data JPA** / **Hibernate**                                                                                                                                                                                                                                             | Integrada  | Mapeo objeto-relacional y consultas optimizadas.                     |
+| **Base de Datos** | <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" height="20" /> **PostgreSQL**                                                                                                                                                                                                                                                               | `15+`      | Motor de base de datos relacional con índices y restricciones.       |
+| **Build Tool**    | <img src="https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white" alt="Gradle" height="20" /> **Gradle** (Wrapper)                                                                                                                                                                                                                                                                     | `9.7.1`    | Automatización de compilación y gestión de dependencias.             |
+| **Documentación** | <img src="https://img.shields.io/badge/Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black" alt="Swagger" height="20" /> **SpringDoc OpenAPI**                                                                                                                                                                                                                                                                 | `2.8.5`    | Documentación interactiva Swagger UI y especificación OpenAPI 3.     |
+| **Frontend**      | <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JS" height="20" /> <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind" height="20" /> **Lumina Desk (Tailwind + ES6 Modules)** | `2.0 (Lumina)` | Nueva suite de Front-end basada en tokens Lumina Support, modular y conectada a la API REST. |
+
+---
+
+## 3. Credenciales de Prueba
+
+La base de datos cuenta con cuentas semilla preconfiguradas con contraseñas encriptadas en **BCrypt** (`admin123`):
+
+| Rol            | Correo Electrónico     | Contraseña | Alcance y Permisos                                                                               |
+|:-------------- |:---------------------- |:---------- |:------------------------------------------------------------------------------------------------ |
+| **ADMIN**      | `admin@technova.com`   | `admin123` | Control total del sistema, asignación manual de tickets a técnicos, métricas y dashboard global. |
+| **TECHNICIAN** | `tecnico@technova.com` | `admin123` | Gestión de tickets asignados, avance de estados operativos y comentarios técnicos.               |
+| **USER**       | `usuario@technova.com` | `admin123` | Creación de incidencias, seguimiento de solicitudes propias y confirmación de cierre.            |
+
+---
+
+## 4. Entidades Principales
+
+El modelo de datos se estructura en torno a las siguientes entidades clave:
+
+```
+[UserAccount] 1 ──── * [Ticket] * ──── 1 [Category]
+      │                   │ *
+      │                   ├──── 1 [Priority]
+      │ *                 ├──── 1 [TicketStatus]
+[UserRole]                ├──── * [Comment]
+      │ *                 ├──── * [TicketAssignment]
+    [Role]                └──── * [TicketHistory]
+```
+
+* **`UserAccount`**: Representa a los usuarios del sistema (nombre, apellido, email único, password hash, estado activo).
+* **`Role` y `Permission`**: Modelo RBAC con relación N:M para control granular de privilegios.
+* **`Ticket`**: Entidad central con título, descripción, solicitante, categoría, prioridad y estado actual.
+* **`Category`**: Clasificación del incidente (`HARDWARE`, `SOFTWARE`, `REDES`, `ACCESOS`, `OTROS`).
+* **`Priority`**: Nivel de criticidad (`BAJA`, `MEDIA`, `ALTA`, `CRITICA`) asociado al tiempo de SLA.
+* **`TicketStatus` y `StatusTransition`**: Catálogo de estados y matriz relacional que valida qué transiciones están permitidas.
+* **`TicketAssignment`**: Registro histórico de asignaciones de técnicos a tickets con fecha y asignador.
+* **`Comment`**: Hilo de retroalimentación bidireccional entre usuario y técnico dentro del ticket.
+* **`TicketHistory`**: Registro inmutable de auditoría para cada cambio de estado, autor y marca de tiempo.
+
+---
+
+## 5. Flujo del Ciclo de Vida y SLAs
+
+### Máquina de Estados Estricta
+
+El ciclo de vida del ticket no permite saltos arbitrarios de estado:
+
+```mermaid
+stateDiagram-v2
+    [*] --> ABIERTA: Creado por USER
+    ABIERTA --> ASIGNADA: Asignado por ADMIN
+    ASIGNADA --> EN_PROCESO: Iniciado por TECHNICIAN
+    EN_PROCESO --> RESUELTA: Solucionado por TECHNICIAN
+    RESUELTA --> CERRADA: Aprobado por USER / ADMIN
+    CERRADA --> [*]
+```
+
+### Tiempos Máximos de SLA por Prioridad
+
+* **CRÍTICA:** SLA máximo de **1 hora** (incidentes que paralizan la operación).
+* **ALTA:** SLA máximo de **2 horas** (impacto severo en procesos clave).
+* **MEDIA:** SLA máximo de **8 horas** (afectación parcial operativa).
+* **BAJA:** SLA máximo de **24 horas** (consultas o fallas menores).
+
+---
+
+## 6. Documentación de la API (Swagger UI)
+
+Una vez iniciado el servidor backend, la interfaz interactiva de Swagger UI y la especificación OpenAPI están disponibles de forma pública en:
+
+* **Swagger UI (Interactivo):** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+* **OpenAPI Docs (JSON):** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+> **Instrucciones para probar endpoints protegidos en Swagger:**
+> 
+> 1. Realizar una petición `POST /api/auth/login` con cualquiera de las credenciales de prueba.
+> 2. Copiar el valor del `token` devuelto en el JSON de respuesta.
+> 3. Hacer clic en el botón **Authorize** (esquina superior derecha en Swagger UI) e ingresar: `Bearer <tu_token>`.
+
+---
+
+## 7. Carga y Ejecución del Proyecto
+
+### Prerrequisitos
+
+* **Java 21 JDK** instalado y configurado en variables de entorno (`JAVA_HOME`).
+* **PostgreSQL 15+** en ejecución local o remota.
+* Navegador web moderno con soporte JavaScript ES6+.
+
+---
+
+### Paso 1: Configurar la Base de Datos PostgreSQL
+
+1. Acceder al gestor PostgreSQL (`psql`, pgAdmin o DBeaver) y crear la base de datos:
+   
+   ```sql
+   CREATE DATABASE "TechNovaTest";
+   ```
+2. Ejecutar el script DDL y DML semilla ubicado en:
+   
+   ```text
+   project/src/main/resources/technova_schema_and_data.sql
+   ```
+   
+   *(Este script inicializa el esquema, índices, roles, permisos y los usuarios de prueba con sus contraseñas encriptadas).*
+
+---
+
+### Paso 2: Ejecutar el Backend (Spring Boot)
+
+1. Abrir una terminal en el directorio `project`:
+   
+   ```bash
+   cd project
+   ```
+2. Si PostgreSQL utiliza credenciales distintas a las predeterminadas (`admin` / `admin123`), ajustar las variables de entorno o editar `src/main/resources/application.yaml`:
+   
+   ```yaml
+   spring:
+     datasource:
+       url: jdbc:postgresql://localhost:5432/TechNovaTest
+       username: tu_usuario
+       password: tu_password
+   ```
+3. Compilar y ejecutar la aplicación mediante Gradle Wrapper:
+   * **Windows (PowerShell / CMD):**
+     
+     ```powershell
+     .\gradlew.bat bootRun
+     ```
+   * **Linux / macOS:**
+     
+     ```bash
+     ./gradlew bootRun
+     ```
+4. El backend iniciará en el puerto `8080` (`http://localhost:8080`).
+
+---
+
+### Paso 3: Ejecutar el Frontend (Puerto 5050)
+
+El frontend de **Lumina Desk** está implementado en arquitectura modular **Vanilla ES6 + CSS3 Tokens**, optimizado para servirse en el puerto **`5050`** mediante la extensión **Live Server** de VS Code o scripts locales:
+
+* **Opción A (Recomendada - Script Windows en Puerto 5050):**
+  Ejecutar el script en la raíz del repositorio:
+  ```cmd
+  iniciar_frontend.bat
+  ```
+* **Opción B (VS Code Live Server en Puerto 5050):**
+  1. Abrir la carpeta `frontend/` en VS Code.
+  2. Verificar que la configuración de Live Server (`liveServer.settings.port`) esté configurada en `5050`.
+  3. Clic derecho en `frontend/index.html` > *Open with Live Server*.
+* **Opción C (Node.js / npx en Puerto 5050):**
+  ```bash
+  npx http-server frontend -p 5050 -c-1 --cors
+  ```
+* **Opción D (Python en Puerto 5050):**
+  ```bash
+  python -m http.server 5050 --directory frontend
+  ```
+
+Navegar a: `http://localhost:5050/index.html`.
+
+---
+
+## 8. Endpoints Principales de la API (Spring Boot REST)
+
+| Método  | Endpoint                     | Acceso Requerido                | Descripción                                                               |
+|:-------:|:---------------------------- |:-------------------------------:|:------------------------------------------------------------------------- |
+| `POST`  | `/api/auth/login`            | Público                         | Autenticación con email/password y retorno de token JWT.                  |
+| `GET`   | `/api/auth/me`               | Autenticado                     | Obtiene el perfil del usuario autenticado con sus roles y permisos.      |
+| `GET`   | `/api/tickets`               | Autenticado                     | Listar tickets con filtros (USER consulta propios, ADMIN consulta todos). |
+| `POST`  | `/api/tickets`               | `USER` / `ADMIN`                | Creación de una nueva solicitud de soporte con SLA automático.            |
+| `GET`   | `/api/tickets/{id}`          | Autenticado                     | Detalle completo de un ticket con solicitante, técnico y SLA.             |
+| `PUT`   | `/api/tickets/{id}/assign`   | `ADMIN`                         | Asignación o reasignación manual de técnico responsable.                 |
+| `PUT`   | `/api/tickets/{id}/status`   | `TECHNICIAN` / `ADMIN` / `USER` | Cambio de estado gobernado por la máquina de estados estricta.            |
+| `GET`   | `/api/tickets/{id}/comments` | Autenticado                     | Lista de comentarios y notas de resolución del ticket.                    |
+| `POST`  | `/api/tickets/{id}/comments` | Autenticado                     | Registro de comentarios y respuestas técnicas (máx. 2000 caracteres).    |
+| `GET`   | `/api/tickets/{id}/history`  | Autenticado                     | Bitácora inmutable de auditoría de transiciones de estado.                |
+| `GET`   | `/api/users/technicians`     | `ADMIN`                         | Catálogo de técnicos activos disponibles para asignación.                 |
+| `GET`   | `/api/admin/dashboard`       | `ADMIN`                         | Métricas ejecutivas globales, cumplimiento SLA y carga de trabajo.        |
+| `GET`   | `/api/categories`            | Autenticado                     | Catálogo dinámico de categorías activas.                                  |
+| `GET`   | `/api/priorities`            | Autenticado                     | Catálogo dinámico de prioridades y límites de tiempo SLA.                 |
+
+---
+
+## 9. Estructura del Repositorio
 
 ```text
-TechNova/
-├── .env.example                               # Plantilla de variables de entorno seguras
-├── .gitignore                                 # Reglas de exclusión para credenciales y compilados
-├── auth-tests.http                            # Pruebas HTTP para el módulo de autenticación
-├── ERS TechNova.md                            # Especificación formal de requisitos de software
-├── README.md                                  # Documentación principal del proyecto
-├── media/                                     # Diagramas y evidencias visuales de configuración
-└── project/                                   # Raíz del microservicio backend en Spring Boot
-    ├── build.gradle                           # Definición de dependencias y plugins Gradle
-    ├── settings.gradle                        # Configuración de proyectos Gradle
-    ├── gradlew / gradlew.bat                  # Wrapper portable de Gradle
-    └── src/
-        ├── main/
-        │   ├── java/tech/com/project/
-        │   │   ├── ProjectApplication.java    # Clase principal de arranque Spring Boot
-        │   │   ├── config/                    # Configuraciones de seguridad, OpenAPI y Seeders
-        │   │   ├── controller/                # Controladores REST expuestos
-        │   │   ├── dto/                       # Data Transfer Objects (Requests y Responses)
-        │   │   ├── exception/                 # Manejo centralizado de excepciones de la API
-        │   │   ├── model/                     # Entidades de dominio JPA mapeadas a PostgreSQL
-        │   │   ├── repository/                # Interfaces de persistencia Spring Data JPA
-        │   │   ├── security/                  # Filtros JWT, UserDetailsService y WebSecurity
-        │   │   └── service/                   # Lógica de negocio e interfaces de servicio
-        │   │       └── impl/                  # Implementaciones de servicios
-        │   └── resources/
-        │       ├── application.example.yaml   # Plantilla pública de configuración Spring
-        │       └── technova_schema_and_data.sql # DDL y DML de base de datos inicial
-        └── test/
-            └── java/tech/com/project/         # Pruebas unitarias y de integración
+TechNova-IT-Helpdesk/
+├── frontend/                     # Aplicación web Vanilla JS (SPA Lumina Desk)
+│   ├── css/
+│   │   ├── variables.css         # Design tokens, variables de color e iconografía
+│   │   ├── base.css              # Reseteo CSS, tipografía Plus Jakarta Sans / JetBrains Mono
+│   │   ├── layout.css            # Shell responsivo, drawer móvil y topbar
+│   │   ├── components.css        # Tarjetas KPI, tablas, badges, modales y spinners
+│   │   └── pages.css             # Estilos de vistas y soporte de impresión (@media print)
+│   ├── js/
+│   │   ├── config.js             # Constantes y catálogo de endpoints de la API
+│   │   ├── session.js            # Manejo de JWT en localStorage, decodificación y RBAC
+│   │   ├── api.js                # Cliente HTTP universal con interceptor JWT y ApiError
+│   │   ├── ui.js                 # Toasts, formateo de fechas, cálculo SLA y escaping XSS
+│   │   ├── app.js                # Inicializador global, atajos de teclado y detector de red
+│   │   ├── auth.js               # Controlador de inicio de sesión
+│   │   ├── dashboard.js          # Métricas operativas en vivo y tabla de tickets recientes
+│   │   ├── tickets.js            # Catálogo reactivo, búsqueda multi-criterio y paginación
+│   │   ├── ticket-detail.js      # Detalle del ticket, máquina de estados y comentarios
+│   │   ├── reportes.js           # Métricas ejecutivas y distribución de técnicos (ADMIN)
+│   │   ├── session.test.js       # Suite de pruebas unitarias para sesión y permisos RBAC
+│   │   ├── api.test.js           # Suite de pruebas unitarias para cliente HTTP
+│   │   └── ui.test.js            # Suite de pruebas unitarias para utilidades y SLA
+│   ├── index.html                # Vista de inicio de sesión
+│   ├── dashboard.html            # Panel operativo en tiempo real
+│   ├── tickets.html              # Directorio y gestión integral de incidencias
+│   ├── ticket-detail.html        # Detalle de ticket, transiciones y auditoría
+│   ├── reportes.html             # Métricas analíticas ejecutivas (exclusivo ADMIN)
+│   └── tests.html                # Suite interactiva de pruebas unitarias en navegador
+├── project/                      # Backend Spring Boot (Java 21)
+│   ├── src/main/java/tech/com/project/
+│   │   ├── controller/           # Controladores REST API
+│   │   ├── model/                # Entidades JPA del dominio
+│   │   ├── repository/           # Repositorios Spring Data JPA
+│   │   ├── security/             # Configuración JWT y Spring Security
+│   │   └── service/              # Lógica de negocio y máquina de estados
+│   ├── src/main/resources/
+│   │   ├── application.yaml      # Configuración de propiedades y datasource
+│   │   └── technova_schema_and_data.sql # Script SQL inicial (DDL + Semilla)
+│   ├── build.gradle              # Dependencias y configuración Gradle
+│   └── gradlew / gradlew.bat     # Wrapper de Gradle
+├── iniciar_frontend.bat          # Lanzador automático del frontend en puerto 5050
+├── media/                        # Capturas y evidencias visuales del proyecto
+├── ERS TechNova.md               # Especificación de Requisitos de Software formal
+└── README.md                     # Documentación principal del proyecto
 ```
 
 ---
 
-## 🔀 4. Modelo de Ramas de Git
-
-El ciclo de desarrollo y control de versiones adopta el siguiente flujo estructurado:
-
-```
-main  <--  test  <--  develop  <--  Dev(Santiago, Jason, Brayan, Fabio)
-```
-
-- **`main`**: Rama de producción con releases estables y verificados.
-- **`test`**: Entorno de integración pre-productiva y validación de suites de pruebas automáticas.
-- **`develop`**: Rama troncal de integración de desarrollo continuo.
-- **Ramas de Especialistas (`Dev*`)**:
-  - `DevSantiago`: Estructura base, persistencia JPA, seguridad Spring Security y autenticación JWT.
-  - `DevJason`: Dominio de tickets, máquina de estados finita, comentarios, auditoría y panel analítico.
-  - `DevBrayan`: Cliente Frontend SPA responsivo en Vanilla JS y consumo de API REST.
-  - `DevFabio`: Soporte de requerimientos, documentación y homologación de artefactos.
-
----
-
-## 🔒 5. Políticas de Seguridad y Manejo de Secretos
-
-> [!IMPORTANT]
-> **No subir credenciales ni secretos a Git**:
-> - Archivos como `.env` y `application.yaml` que contienen credenciales reales de base de datos o claves JWT **están expresamente ignorados** en `.gitignore`.
-> - Se debe utilizar siempre `.env.example` y `application.example.yaml` como referencia para crear las configuraciones locales.
-
----
-
-## 🏛️ 6. Modelo de Dominio y Persistencia (JPA & PostgreSQL)
-
-El modelo de datos implementa las reglas de negocio descritas en la ERS:
-
-| Entidad JPA | Tabla SQL | Descripción |
-| :--- | :--- | :--- |
-| `UserAccount` | `user_account` | Usuarios del sistema con credenciales encriptadas en BCrypt. |
-| `Role` | `role` | Catálogo de roles de seguridad (`ADMIN`, `TECHNICIAN`, `USER`). |
-| `Permission` | `permission` | Permisos atómicos del sistema (`TICKET_READ`, `TICKET_CREATE`, etc.). |
-| `UserRole` | `user_role` | Asociación muchos a muchos entre usuarios y roles. |
-| `RolePermission` | `role_permission` | Matriz de privilegios otorgados a cada rol. |
-| `Category` | `category` | Categorías de soporte técnico (`HARDWARE`, `SOFTWARE`, `RED`, `ACCESO`). |
-| `Priority` | `priority` | Prioridades y SLA: `ALTA` (2h), `MEDIA` (8h), `BAJA` (24h). |
-| `TicketStatus` | `ticket_status` | Estados del ticket: `ABIERTA`, `ASIGNADA`, `EN_PROCESO`, `RESUELTA`, `CERRADA`. |
-| `StatusTransition` | `status_transition` | Matriz permitida de transiciones de estados del ciclo de vida. |
-| `Ticket` | `ticket` | Solicitud principal de soporte asociada a solicitante, categoría y prioridad. |
-| `TicketAssignment` | `ticket_assignment` | Histórico de asignaciones y reasignaciones de técnicos por el ADMIN. |
-| `TicketHistory` | `ticket_history` | Registro inmutable de auditoría de cada cambio de estado. |
-| `Comment` | `comment` | Comentarios e intercambios entre usuarios y técnicos en un ticket. |
-
-### Inicialización y Seeding
-El sistema cuenta con:
-1. `DataInitializer.java`: Componente `CommandLineRunner` que asegura la creación de roles, permisos, categorías, prioridades, transiciones y usuarios predeterminados de prueba si las tablas están vacías.
-2. `technova_schema_and_data.sql`: Script DDL/DML para aprovisionamiento manual o en entornos de base de datos PostgreSQL independientes.
-
----
-
-## 🔐 7. Seguridad, Autenticación y Control de Acceso (JWT & Spring Security)
-
-La capa de seguridad está desacoplada y diseñada bajo una arquitectura stateless basada en tokens:
-
-- **Algoritmo de Firma:** HMAC-SHA256 (HS256) configurado con secreto criptográfico de 256 bits.
-- **Expiración de Tokens:** 24 horas (86,400,000 ms) por defecto.
-- **Claims del Token:**
-  - `sub`: Correo electrónico institucional del usuario autenticado.
-  - `userId`: Identificador numérico del usuario en base de datos.
-  - `roles`: Colección de roles asignados (`ROLE_ADMIN`, `ROLE_TECHNICIAN`, `ROLE_USER`).
-  - `permissions`: Privilegios granulares asociados (`TICKET_READ`, `TICKET_CREATE`, `TICKET_ASSIGN`, etc.).
-- **Filtro de Intercepción (`JwtAuthenticationFilter`):**
-  - Intercepta cada solicitud HTTP entrante buscando la cabecera `Authorization: Bearer <token>`.
-  - Valida la integridad y caducidad mediante `JwtUtils`.
-  - Carga los detalles en `UserDetailsServiceImpl` y establece la autenticación en `SecurityContextHolder`.
-- **Controladores Expuestos:**
-  - `POST /api/auth/login`: Autenticación con email y contraseña, retorna JWT y perfil del usuario.
-  - `GET /api/auth/me`: Retorna los datos del usuario autenticado actual.
-  - `GET /api/auth-demo/*`: Endpoints de demostración para verificar autorización por rol (`/admin-only`, `/technician-only`, `/user-only`, `/authenticated`).
-- **Manejo Centralizado de Excepciones:**
-  - Respuestas JSON uniformes (`ApiErrorResponse`) con timestamp, código de estado HTTP, mensaje de error y ruta.
-
----
-
-## ⚙️ 8. Variables de Entorno y Configuración Local
-
-Para ejecutar el microservicio localmente sin comprometer credenciales en Git:
-
-1. **Crear archivo `.env`** en la raíz del repositorio basándose en `.env.example`:
-   ```bash
-   SERVER_PORT=8080
-   SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/TechNovaTest
-   SPRING_DATASOURCE_USERNAME=admin
-   SPRING_DATASOURCE_PASSWORD=admin123
-   JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-   JWT_EXPIRATION_MS=86400000
-   ```
-2. **Crear archivo `application.yaml`** en `project/src/main/resources/` basándose en `application.example.yaml`. Ambos archivos están protegidos contra commits mediante `.gitignore`.
-
----
-
-## 🧪 9. Verificación, Pruebas y Swagger UI
-
-### Pruebas Automatizadas con Gradle
-Para compilar y ejecutar las pruebas unitarias y de integración de la capa de autenticación:
-```powershell
-cd project
-.\gradlew.bat test --tests "tech.com.project.AuthControllerTest"
-```
-La suite `AuthControllerTest` valida:
-- Autenticación exitosa con credenciales válidas y generación de JWT válido.
-- Rechazo de credenciales inválidas (401 Unauthorized).
-- Acceso denegado a endpoints protegidos sin token.
-- Control de acceso basado en roles (ADMIN vs TECHNICIAN vs USER) sobre `/api/auth-demo/*`.
-
-### Pruebas Manuales con REST Client / HTTP
-El archivo `auth-tests.http` contiene las peticiones HTTP listas para ejecutar desde Visual Studio Code (extensión REST Client) o IntelliJ IDEA HTTP Client:
-- Login como Administrador (`admin@technova.com`).
-- Login como Técnico (`tecnico@technova.com`).
-- Login como Usuario final (`usuario@technova.com`).
-- Pruebas de consumo de endpoints protegidos con token Bearer.
-
-### Documentación Interactiva (Swagger UI)
-Con el backend en ejecución, la documentación de la API y especificación OpenAPI 3 se encuentra disponible en:
-- **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
-- **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
-
----
-
-## 🗂️ 10. Catálogos Operativos y Matriz SLA
-
-La plataforma expone endpoints para consultar los catálogos maestros requeridos durante el registro y asignación de incidentes:
-
-- `GET /api/categories`: Lista de categorías activas (`HARDWARE`, `SOFTWARE`, `RED`, `ACCESO`).
-- `GET /api/priorities`: Catálogo de prioridades con tiempos de respuesta SLA:
-  - **ALTA:** Tiempo máximo de resolución: **2 horas**.
-  - **MEDIA:** Tiempo máximo de resolución: **8 horas**.
-  - **BAJA:** Tiempo máximo de resolución: **24 horas**.
-- `GET /api/users/technicians`: Lista de especialistas con rol `TECHNICIAN` disponibles para asignación (restringido a usuarios autenticados con rol `ADMIN`).
-
----
-
-## 🔄 11. Máquina de Estados y Ciclo de Vida de Tickets
-
-El flujo de vida de un ticket está regido por una máquina de estados finita con validación programática estricta en backend (`TicketStateMachineService`), garantizando las reglas de negocio **RN-01** y **RN-02**:
-
-```
-[ABIERTA] --(Asignación manual por ADMIN)--> [ASIGNADA]
-    │
-    └──>(Inicio de labores por TECHNICIAN)--> [EN_PROCESO]
-            │
-            └──>(Solución por TECHNICIAN)--> [RESUELTA]
-                    │
-                    └──>(Conformidad USER / Cierre ADMIN)--> [CERRADA]
-```
-
-### Tabla de Transiciones Permitidas:
-
-| Estado Origen | Estado Destino | Rol Autorizado | Acción / Evento |
-| :--- | :--- | :--- | :--- |
-| *(Creación)* | `ABIERTA` | `USER` / `ADMIN` | Registro inicial del incidente. |
-| `ABIERTA` | `ASIGNADA` | `ADMIN` | Asignación manual de especialista técnico. |
-| `ASIGNADA` | `EN_PROCESO` | `TECHNICIAN` (Asignado) / `ADMIN` | Inicio formal del trabajo de diagnóstico o soporte. |
-| `EN_PROCESO` | `RESUELTA` | `TECHNICIAN` (Asignado) / `ADMIN` | Registro de solución técnica aplicada. |
-| `RESUELTA` | `CERRADA` | `USER` (Solicitante) / `ADMIN` | Conformidad del usuario final con el servicio. |
-
-Cualquier transición no listada arroja una excepción `InvalidStatusTransitionException` retornando HTTP 400 Bad Request.
-
----
-
-## 🎫 12. Endpoints de Gestión Core de Tickets (RF-02, RF-03, RF-04)
-
-- `POST /api/tickets`: Creación de solicitudes de soporte (`USER`, `ADMIN`). Recibe título, descripción, `categoryId` y `priorityId`.
-- `GET /api/tickets`: Listado paginado y con filtros dinámicos (categoría, prioridad, estado, fechas, búsqueda).
-  - Los usuarios con rol `USER` solo pueden visualizar sus tickets propios.
-  - Los usuarios `TECHNICIAN` visualizan tickets asignados a su persona o en cola.
-  - Los usuarios `ADMIN` visualizan la totalidad de solicitudes.
-- `GET /api/tickets/{id}`: Obtener el detalle completo del incidente con asignación y marcas de tiempo.
-- `PUT /api/tickets/{id}/assign`: Asignación manual de técnico a un ticket (`ADMIN` únicamente). Transiciona el estado a `ASIGNADA`.
-- `PUT /api/tickets/{id}/status`: Actualización programática del estado validada por la máquina de estados.
-- `GET /api/tickets/{id}/history`: Historial inmutable de auditoría con la línea de tiempo de cambios de estado y usuario autor.
-
----
-
-## 💬 13. Comentarios Colaborativos e Interacción Técnica (RF-05)
-
-La plataforma facilita la comunicación bidireccional entre el solicitante y el equipo técnico:
-
-- `POST /api/tickets/{id}/comments`: Publicar un comentario en un ticket abierto o en atención.
-  - Valida que el autor sea el solicitante (`USER`), el técnico asignado (`TECHNICIAN`) o un `ADMIN`.
-  - Impide comentarios una vez que el ticket se encuentra en estado `CERRADA`.
-- `GET /api/tickets/{id}/comments`: Recuperar el hilo cronológico de comentarios asociados al ticket con marcas de tiempo y datos del autor.
-
----
-
-## 📊 14. Panel de Control Analítico de Administración (RF-07)
-
-El endpoint administrativo centraliza los indicadores clave de rendimiento (KPIs) para la gerencia de TI:
-
-- `GET /api/admin/dashboard`: Retorna métricas globales consolidadas:
-  - **Métricas por Estado:** Conteo de tickets clasificados por cada estado del ciclo de vida.
-  - **Distribución por Prioridad:** Porcentaje y volumen de incidencias agrupadas por `ALTA`, `MEDIA` y `BAJA`.
-  - **Distribución por Categoría:** Desglose temático de fallas operativas reportadas.
-  - **Carga de Trabajo por Técnico:** Distribución de tickets activos por cada especialista asignado.
-  - **Tiempos Promedio de Resolución:** Medición en horas del tiempo promedio transcurrido desde la creación hasta el estado `RESUELTA`.
-
----
-
-## 🧪 15. Suites de Pruebas Integradas (Tickets, Auditoría y Dashboard)
-
-Para ejecutar la totalidad de pruebas automatizadas del módulo de tickets y analíticas:
-```powershell
-cd project
-# Ejecutar pruebas completas de tickets
-.\gradlew.bat test --tests "tech.com.project.TicketControllerTest"
-# Ejecutar pruebas de comentarios y validaciones
-.\gradlew.bat test --tests "tech.com.project.CommentControllerTest"
-# Ejecutar pruebas de filtros multicriterio y trazabilidad histórica
-.\gradlew.bat test --tests "tech.com.project.TicketFilterAndHistoryTest"
-# Ejecutar pruebas del panel analítico administrativo
-.\gradlew.bat test --tests "tech.com.project.AdminDashboardControllerTest"
-```
-Todas las suites ejecutan pruebas end-to-end con `MockMvc` simulando usuarios autenticados mediante tokens JWT y verificando códigos HTTP, serialización de DTOs y validaciones de integridad de base de datos.
-
----
-
-## 🎨 16. Frontend SPA — Arquitectura y Sistema de Diseño
-
-La interfaz de usuario está construida como una **Single Page Application (SPA)** responsiva desarrollada con estándares web nativos sin librerías externas ni empaquetadores complejos:
-
-- **Filosofía Vanilla:** HTML5 semántico, CSS3 moderno y Vanilla JavaScript modular (ES6+ Modules).
-- **Sistema de Diseño (`frontend/css/styles.css`):**
-  - Paleta de colores institucional basada en tonos esmeralda y cian (`--primary: #1b7f79`, `--teal-dark: #125551`).
-  - Variables CSS para consistencia en espaciados, bordes, sombras y tipografía accesible.
-  - Componentes reutilizables: botones estilizados, badges de estado del ticket (`badge-abierta`, `badge-asignada`, etc.), tarjetas elevadas, formularios y tablas responsivas con soporte para colapso en pantallas móviles.
-- **Configuración de Red (`frontend/js/config.js`):**
-  - Define `API_BASE` (`http://localhost:8080`) permitiendo personalización dinámica en tiempo de ejecución mediante la variable global `window.TECHNOVA_API_BASE`.
-
----
-
-## ⚡ 17. Módulos Cliente y Gestión de Sesión
-
-El frontend se estructura en módulos ES6 independientes con responsabilidades delimitadas:
-
-- **Cliente HTTP (`frontend/js/api.js`):**
-  - Wrapper sobre la API estándar `fetch`.
-  - Inyecta automáticamente el token de autenticación (`Authorization: Bearer <token>`) en cada petición saliente.
-  - Gestión centralizada de errores HTTP y formateo de respuestas JSON.
-- **Gestión de Sesión (`frontend/js/session.js`):**
-  - Almacena de forma segura el token JWT y el perfil de usuario en `localStorage`.
-  - Provee funciones de validación de permisos: `hasRole('ADMIN')`, `can('TICKET_ASSIGN')`, `getUser()`, y `logout()`.
-- **Componentes UI Dinámicos (`frontend/js/ui.js`):**
-  - Sistema de modales accesibles (`openDialog`, `closeDialog`).
-  - Notificaciones emergentes (*toasts*) no intrusivas para retroalimentación operativa.
-  - Utilidades de renderizado seguro contra XSS (`escapeHtml`), formateo de fechas y plantillas de formulario.
-- **Layout y Shell Global (`frontend/js/layout.js`):**
-  - Inyecta dinámicamente la barra de navegación superior y el menú lateral según el rol activo del usuario autenticado.
-
----
-
-## 🔑 18. Interfaz de Autenticación (`frontend/index.html` y `auth.js`)
-
-- **Pantalla de Inicio de Sesión (`index.html`):**
-  - Formulario de credenciales con validación reactiva de formato de correo electrónico y contraseña.
-  - Alerta dinámica de expiración de sesión (`?expired=true`).
-- **Controlador de Autenticación (`frontend/js/pages/auth.js`):**
-  - Consume el endpoint `POST /api/auth/login`.
-  - Almacena el token recibido y el objeto de perfil mediante `setSession()`.
-  - Redirecciona de forma inteligente según el rol del usuario: administradores a `/admin.html` o `/tickets.html`, y empleados a `/tickets.html`.
-
----
-
-## 🎫 19. Vistas de Gestión y Detalle de Incidentes
-
-- **Catálogo de Tickets (`frontend/tickets.html` y `tickets.js`):**
-  - Panel de filtros dinámicos por estado, prioridad, categoría y búsqueda en tiempo real.
-  - Tabla responsiva con paginación interactiva (página actual, total de elementos, selector de tamaño).
-  - Modal para registro de nueva solicitud (`Nueva Solicitud de Soporte`) con selector dinámico de categoría y prioridad.
-- **Detalle de Incidente (`frontend/ticket-detail.html` y `ticket.js`):**
-  - Visualización del solicitante, técnico asignado, nivel de prioridad y estado actual.
-  - Botones contextuales según rol para ejecutar transiciones de estado permitidas por la máquina de estados.
-  - Hilo de comentarios colaborativos en tiempo real con formulario de nuevo aporte.
-  - Línea de tiempo interactiva de auditoría (*Audit Timeline*) mostrando cada cambio de estado, fecha y autor.
-
----
-
-## 📊 20. Vistas de Administración y Supervisión (`admin.html` y `dashboard.html`)
-
-- **Panel de Administración TI (`admin.html` y `admin.js`):**
-  - **Cola de Asignación Manual:** Lista de incidentes en estado `ABIERTA` con selector para asignar un técnico especialista de forma inmediata.
-  - **Distribución de Carga Técnica:** Tabla resumen que detalla la cantidad de tickets asignados por cada técnico activo.
-- **Dashboard de Métricas Analíticas (`dashboard.html` y `dashboard.js`):**
-  - Tarjetas de resumen con indicadores de totales por estado.
-  - Gráficos y barras de distribución por categoría y prioridad de incidentes.
-  - Métricas de cumplimiento de tiempos de respuesta y tiempos medios de resolución.
-
----
-
-## 🌐 21. Guía de Ejecución Local del Frontend
-
-Para ejecutar la aplicación cliente e interactuar con el backend:
-
-1. **Asegurar que el backend Spring Boot esté activo:**
-   ```powershell
-   cd project
-   .\gradlew.bat bootRun
-   ```
-   El backend escuchará en `http://localhost:8080`.
-
-2. **Servir la carpeta `frontend/` mediante cualquier servidor HTTP local:**
-   - **Opción A (VS Code Live Server):** Hacer clic derecho sobre `frontend/index.html` y seleccionar *Open with Live Server* (típicamente en puerto 5500).
-   - **Opción B (Python):**
-     ```powershell
-     cd frontend
-     python -m http.server 5500
-     ```
-   - **Opción C (Node.js http-server o npx serve):**
-     ```powershell
-     npx serve frontend -p 5500
-     ```
-
-3. **Acceder a la aplicación:**
-   Abrir el navegador web en `http://localhost:5500` para iniciar sesión y gestionar tickets.
-
----
-
-## 📋 22. Especificación y Cumplimiento de Requisitos ERS
-
-El desarrollo del sistema responde directamente a los requerimientos funcionales aprobados en [ERS TechNova.md](file:///C:/Users/Santiago%20Sarmiento/Desktop/TechNova/ERS%20TechNova.md):
-
-| Código | Requisito Funcional | Implementación Backend | Interfaz Frontend | Estado |
-| :--- | :--- | :--- | :--- | :--- |
-| **RF-01** | Autenticación y Autorización | `AuthController`, `JwtUtils`, Spring Security | `index.html`, `js/pages/auth.js` | ✅ Conforme |
-| **RF-02** | Creación de Tickets | `TicketController.createTicket` | Modal en `tickets.html`, `tickets.js` | ✅ Conforme |
-| **RF-03** | Asignación Manual | `TicketController.assignTechnician` | Modal en `ticket-detail.html`, `admin.html` | ✅ Conforme |
-| **RF-04** | Ciclo de Vida y Máquina de Estados | `TicketStateMachineService` | Botones contextuales en `ticket-detail.html` | ✅ Conforme |
-| **RF-05** | Comentarios e Historial | `CommentController`, `TicketHistory` | Hilo de chat y timeline en `ticket.js` | ✅ Conforme |
-| **RF-06** | Notificaciones / Trazabilidad | Registro inmutable de auditoría en BD | Indicadores y estados en interfaz | ✅ Conforme |
-| **RF-07** | Dashboard de Administración | `AdminDashboardController` | Panel analítico en `dashboard.html` | ✅ Conforme |
-| **RF-08** | Filtros y Búsqueda Avanzada | JPA Criteria en `TicketSpecification` | Barra de filtros en `tickets.html` | ✅ Conforme |
-
----
-
-## 🛡️ 23. Atributos de Calidad y Requisitos Técnicos (RT-01 a RT-06)
-
-El diseño del sistema cumple con los estándares no funcionales de la ingeniería de software:
-
-- **RT-01 — Rendimiento:** Respuestas rápidas de la API REST optimizadas con `@EntityGraph` para prevenir el problema de consultas $N+1$ en Hibernate.
-- **RT-02 — Seguridad:** Arquitectura de autenticación *stateless* basada en tokens JWT con algoritmo criptográfico HS256, contraseñas hasheadas con BCrypt y control estricto de acceso basado en roles (`RBAC`).
-- **RT-03 — Disponibilidad:** Gestión eficiente de conexiones a base de datos mediante el pool HikariCP de alto rendimiento.
-- **RT-04 — Escalabilidad:** Microservicio modular sin estado de sesión en servidor, preparado para escalado horizontal y empaquetamiento en contenedores Docker.
-- **RT-05 — Usabilidad:** Interfaz web SPA intuitiva, adaptada a pantallas móviles y de escritorio, con tiempos de aprendizaje mínimos.
-- **RT-06 — Mantenibilidad:** Separación estricta de responsabilidades en capas (Controller $\rightarrow$ Service $\rightarrow$ Repository), uso de DTOs para aislar el modelo de datos de la capa web y manejo global unificado de excepciones (`GlobalExceptionHandler`).
-
----
-
-## ✅ 24. Checklist de Control de Calidad y Auditoría Pre-Productiva (QA)
-
-Antes de promover los cambios hacia las ramas `develop` y `test`, se realiza la siguiente lista de verificación:
-
-- [x] **Compilación Limpia:** Compilación de código backend sin warnings críticos ni errores de sintaxis (`./gradlew compileJava`).
-- [x] **Suites de Pruebas Automatizadas:** 100% de tests unitarios y de integración aprobados en `./gradlew test`.
-- [x] **Seguridad de Secretos:** Exclusión total de `.env` y `application.yaml` mediante `.gitignore`.
-- [x] **Reglas de Negocio Validadas:** Máquina de estados (RN-02) rechaza transiciones ilegales y la matriz SLA (RN-03) calcula prioridades correctamente.
-- [x] **Aislamiento por Rol:** Endpoints protegidos impiden IDOR y respetan la jerarquía ADMIN, TECHNICIAN y USER.
-- [x] **Documentación Actualizada:** `README.md` y `ERS TechNova.md` completamente sincronizados con la implementación real del proyecto.
-
----
-
-## 🔀 25. Rama `develop` — Línea Base de Integración Continua
-
-La rama **`develop`** consolida de forma unificada las contribuciones de las cuatro ramas de desarrollo:
-
-- **`DevSantiago`:** Capa de seguridad Spring Security, autenticación stateless JWT, modelos de dominio JPA, repositorios y script SQL maestro.
-- **`DevJason`:** Lógica de negocio de soporte, catálogos de categorías y prioridades con SLA, máquina de estados finita, comentarios, auditoría y panel analítico de administración.
-- **`DevBrayan`:** Cliente web completo Single Page Application (HTML5, CSS3, Vanilla JS modular), vistas responsivas y refactorización UX.
-- **`DevFabio`:** Especificación formal de requisitos ERS, matriz de trazabilidad y checklist de aseguramiento de calidad (QA).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Equipo y Créditos
+
+* **Desarrollo y Arquitectura:** Santiago Andrés Sarmiento Martínez
+* **Front-end:** Fabio Daniel Capacho Nuñez
+* **Desarrollo de API y Conección:** Jason Ferney Pallares Duque y Brayan Fonxeca
+* **Organización:** TechNova Solutions
