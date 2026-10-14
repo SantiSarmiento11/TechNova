@@ -1,201 +1,238 @@
 /**
- * TechNova IT Helpdesk - Lumina Support UI Helpers
- * Funciones de renderizado, sanitización, badges, modales y notificaciones.
+ * TechNova IT Helpdesk - Utilidades de Interfaz de Usuario, Notificaciones y Formateo
  */
-import { STATUS_LABELS, PRIORITY_LABELS } from './config.js';
 
-export const $ = (selector, parent = document) => parent.querySelector(selector);
-export const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+import { getUser, clearSession, hasRole } from './session.js';
 
-export function esc(str) {
+/**
+ * Muestra una notificación Toast flotante no intrusiva.
+ * @param {string} message - Contenido del mensaje
+ * @param {'success'|'error'|'warning'|'info'} [type='info'] - Tipo visual
+ * @param {number} [duration=4000] - Tiempo en ms
+ */
+export function showToast(message, type = 'info', duration = 4000) {
+  let container = document.getElementById('technovaToastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'technovaToastContainer';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+
+  const iconName =
+    type === 'success'
+      ? 'check_circle'
+      : type === 'error'
+      ? 'error'
+      : type === 'warning'
+      ? 'warning'
+      : 'info';
+
+  toast.innerHTML = `
+    <span class="material-symbols-outlined" style="font-size: 20px;">${iconName}</span>
+    <span style="flex: 1; word-break: break-word;">${escapeHtml(message)}</span>
+  `;
+
+  container.appendChild(toast);
+
+  const removeToast = () => {
+    toast.classList.add('toast-hide');
+    setTimeout(() => {
+      if (toast.parentElement) toast.remove();
+    }, 250);
+  };
+
+  const timer = setTimeout(removeToast, duration);
+  toast.addEventListener('click', () => {
+    clearTimeout(timer);
+    removeToast();
+  });
+}
+
+/**
+ * Renderiza un contenedor de alerta inline dentro de un elemento.
+ * @param {HTMLElement|string} target - ID o elemento destino
+ * @param {string} message - Texto del mensaje
+ * @param {'error'|'success'|'warning'|'info'} [type='error']
+ */
+export function renderAlert(target, message, type = 'error') {
+  const el = typeof target === 'string' ? document.getElementById(target) : target;
+  if (!el) return;
+
+  const iconName =
+    type === 'error'
+      ? 'error'
+      : type === 'success'
+      ? 'check_circle'
+      : type === 'warning'
+      ? 'warning'
+      : 'info';
+
+  el.innerHTML = `
+    <div class="alert alert-${type}">
+      <span class="material-symbols-outlined" style="font-size: 20px;">${iconName}</span>
+      <span style="flex: 1;">${escapeHtml(message)}</span>
+    </div>
+  `;
+}
+
+/**
+ * Limpia el contenido de un contenedor de alerta.
+ * @param {HTMLElement|string} target
+ */
+export function clearAlert(target) {
+  const el = typeof target === 'string' ? document.getElementById(target) : target;
+  if (el) el.innerHTML = '';
+}
+
+/**
+ * Formatea una fecha ISO (ej. 2026-10-14T10:30:00) a formato local legible (DD/MM/YYYY, HH:mm).
+ * @param {string|Date} dateVal
+ * @returns {string}
+ */
+export function formatDate(dateVal) {
+  if (!dateVal) return 'Sin fecha';
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return String(dateVal);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year}, ${hours}:${minutes}`;
+  } catch {
+    return String(dateVal);
+  }
+}
+
+/**
+ * Devuelve el HTML de badge para el estado del ticket según la guía de diseño.
+ * @param {string} status
+ * @returns {string}
+ */
+export function getStatusBadge(status) {
+  if (!status) return '<span class="badge badge-cerrada">Desconocido</span>';
+  const clean = status.trim().toUpperCase();
+  const label = clean.replace(/_/g, ' ');
+
+  let badgeClass = 'badge-cerrada';
+  if (clean === 'ABIERTA') badgeClass = 'badge-abierta';
+  else if (clean === 'ASIGNADA') badgeClass = 'badge-asignada';
+  else if (clean === 'EN_PROCESO') badgeClass = 'badge-en_proceso';
+  else if (clean === 'RESUELTA') badgeClass = 'badge-resuelta';
+  else if (clean === 'CERRADA') badgeClass = 'badge-cerrada';
+
+  return `<span class="badge ${badgeClass}">${label}</span>`;
+}
+
+/**
+ * Devuelve el HTML de badge para la prioridad del ticket.
+ * @param {string} priority
+ * @returns {string}
+ */
+export function getPriorityBadge(priority) {
+  if (!priority) return '<span class="badge badge-media">Media</span>';
+  const clean = priority.trim().toUpperCase();
+
+  let badgeClass = 'badge-media';
+  if (clean === 'CRITICA' || clean === 'CRÍTICA') badgeClass = 'badge-critica';
+  else if (clean === 'ALTA') badgeClass = 'badge-alta';
+  else if (clean === 'MEDIA') badgeClass = 'badge-media';
+  else if (clean === 'BAJA') badgeClass = 'badge-baja';
+
+  return `<span class="badge ${badgeClass}">${clean}</span>`;
+}
+
+/**
+ * Escapa caracteres HTML para prevenir XSS.
+ * @param {string} str
+ * @returns {string}
+ */
+export function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-export function formatDate(isoString) {
-  if (!isoString) return '-';
-  try {
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return isoString;
-    return new Intl.DateTimeFormat('es-CO', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  } catch {
-    return isoString;
-  }
+    .replace(/'/g, '&#039;');
 }
 
 /**
- * Renderiza el badge de estado según los tokens de color e iconos de Lumina Support
+ * Abre un modal por ID de overlay.
+ * @param {string} modalId
  */
-export function statusBadge(status) {
-  const normalized = (status || '').toUpperCase().trim();
-  const label = STATUS_LABELS[normalized] || normalized || 'Desconocido';
-
-  const config = {
-    ABIERTA: {
-      style: 'bg-blue-50 text-blue-700 ring-1 ring-blue-700/20',
-      icon: 'radio_button_checked',
-    },
-    ASIGNADA: {
-      style: 'bg-amber-50 text-amber-700 ring-1 ring-amber-700/20',
-      icon: 'person_pin',
-    },
-    EN_PROCESO: {
-      style: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-700/20',
-      icon: 'pending',
-    },
-    RESUELTA: {
-      style: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-700/20',
-      icon: 'check_circle',
-    },
-    CERRADA: {
-      style: 'bg-slate-100 text-slate-700 ring-1 ring-slate-700/20',
-      icon: 'lock',
-    },
-  };
-
-  const current = config[normalized] || {
-    style: 'bg-gray-100 text-gray-700 ring-1 ring-gray-700/20',
-    icon: 'help_outline',
-  };
-
-  return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${current.style}">
-    <span class="material-symbols-outlined text-[14px]">${current.icon}</span>
-    <span>${esc(label)}</span>
-  </span>`;
+export function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.add('active');
 }
 
 /**
- * Renderiza el badge de prioridad con SLA asociado
+ * Cierra un modal por ID de overlay.
+ * @param {string} modalId
  */
-export function priorityBadge(priority) {
-  const normalized = (priority || '').toUpperCase().trim();
-  const label = PRIORITY_LABELS[normalized] || normalized || 'Media';
-
-  const styles = {
-    BAJA: 'text-emerald-700 bg-emerald-50 ring-1 ring-emerald-700/20',
-    MEDIA: 'text-blue-700 bg-blue-50 ring-1 ring-blue-700/20',
-    ALTA: 'text-amber-800 bg-amber-50 ring-1 ring-amber-700/20',
-    CRITICA: 'text-rose-700 bg-rose-50 ring-1 ring-rose-700/20 font-bold',
-  };
-
-  const styleClass = styles[normalized] || 'text-gray-700 bg-gray-50 ring-1 ring-gray-700/20';
-
-  return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${styleClass}">
-    <span class="w-1.5 h-1.5 rounded-full ${normalized === 'CRITICA' ? 'bg-rose-600 animate-pulse' : 'bg-current'}"></span>
-    <span>${esc(label)}</span>
-  </span>`;
+export function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.remove('active');
 }
 
 /**
- * Notificaciones Flotantes (Toasts)
+ * Sincroniza la información del usuario autenticado en el sidebar y topbar,
+ * gestiona botones de logout y visibilidad basada en roles.
  */
-export function toast(message, type = 'info') {
-  let container = document.getElementById('lumina-toasts');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'lumina-toasts';
-    container.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none';
-    document.body.appendChild(container);
-  }
+export function syncUserInterface() {
+  const user = getUser();
+  if (!user) return;
 
-  const el = document.createElement('div');
-  const typeStyles = {
-    success: 'bg-emerald-600 text-white shadow-emerald-900/20',
-    error: 'bg-rose-600 text-white shadow-rose-900/20',
-    info: 'bg-primary-container text-white shadow-primary-900/20',
-    warning: 'bg-amber-600 text-white shadow-amber-900/20',
-  };
+  // Traducir rol principal
+  let roleLabel = 'Usuario';
+  if (hasRole('ADMIN')) roleLabel = 'Administrador TI';
+  else if (hasRole('TECHNICIAN')) roleLabel = 'Técnico de Soporte';
+  else if (hasRole('USER')) roleLabel = 'Usuario Solicitante';
 
-  el.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg font-medium text-sm flex items-center gap-2 transform transition-all duration-300 translate-y-4 opacity-0 ${typeStyles[type] || typeStyles.info}`;
-  el.innerHTML = `
-    <span class="material-symbols-outlined text-[18px]">
-      ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}
-    </span>
-    <span>${esc(message)}</span>
-  `;
+  const displayName = user.fullName || user.email;
+  const initials = (user.firstName ? user.firstName[0] : '') + (user.lastName ? user.lastName[0] : '') || 'U';
 
-  container.appendChild(el);
-  requestAnimationFrame(() => {
-    el.classList.remove('translate-y-4', 'opacity-0');
+  // Sincronizar elementos en el sidebar
+  document.querySelectorAll('.sidebar-user-name').forEach((el) => {
+    el.textContent = displayName;
   });
 
-  setTimeout(() => {
-    el.classList.add('opacity-0', 'translate-y-2');
-    setTimeout(() => el.remove(), 300);
-  }, 3500);
-}
-
-/**
- * Modal dinámico de diálogo
- */
-export function openModal(titleHtml, bodyHtml) {
-  const backdrop = document.createElement('div');
-  backdrop.className = 'fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity';
-
-  backdrop.innerHTML = `
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-100 overflow-hidden transform transition-all p-6 space-y-4">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-        <h3 class="font-bold text-lg text-slate-800">${titleHtml}</h3>
-        <button type="button" data-modal-close class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
-          <span class="material-symbols-outlined text-[20px]">close</span>
-        </button>
-      </div>
-      <div class="modal-content">${bodyHtml}</div>
-    </div>
-  `;
-
-  document.body.appendChild(backdrop);
-
-  const close = () => {
-    backdrop.classList.add('opacity-0');
-    setTimeout(() => backdrop.remove(), 200);
-  };
-
-  backdrop.querySelector('[data-modal-close]')?.addEventListener('click', close);
-  backdrop.addEventListener('click', (e) => {
-    if (e.target === backdrop) close();
+  document.querySelectorAll('.sidebar-user-role').forEach((el) => {
+    el.textContent = roleLabel;
   });
 
-  return { backdrop, close };
-}
+  // Ocultar enlace a "Reportes y Métricas" para usuarios que NO sean ADMIN
+  const reportLink = document.querySelector('a[href="reportes.html"]');
+  if (reportLink && !hasRole('ADMIN')) {
+    reportLink.style.display = 'none';
+  }
 
-/**
- * Renderiza filas esqueleto animadas para transiciones de carga
- */
-export function skeletonTableRows(columnsCount = 8, rowsCount = 4) {
-  let html = '';
-  for (let r = 0; r < rowsCount; r++) {
-    html += '<tr class="animate-pulse border-b border-slate-100">';
-    for (let c = 0; c < columnsCount; c++) {
-      html += '<td class="py-4 px-4"><div class="h-4 bg-slate-200/70 rounded-md w-3/4"></div></td>';
+  // Sincronizar fecha actual en el header
+  document.querySelectorAll('.current-date-text').forEach((el) => {
+    const now = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const formatted = now.toLocaleDateString('es-ES', options);
+    el.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  });
+
+  // Sincronizar logout global
+  const handleLogout = () => {
+    if (confirm('¿Desea cerrar la sesión actual de TechNova IT Helpdesk?')) {
+      clearSession();
+      window.location.href = 'index.html';
     }
-    html += '</tr>';
-  }
-  return html;
-}
+  };
 
-/**
- * Renderiza un estado vacío estilizado con Lumina Desk
- */
-export function emptyStateHtml(title, description = '', icon = 'inbox') {
-  return `
-    <div class="py-12 flex flex-col items-center justify-center text-center bg-slate-50/60 rounded-2xl p-6 border border-dashed border-slate-200">
-      <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 mb-3 border border-slate-100">
-        <span class="material-symbols-outlined text-[26px]">${icon}</span>
-      </div>
-      <h4 class="font-bold text-slate-700 text-sm">${esc(title)}</h4>
-      ${description ? `<p class="text-xs text-slate-500 mt-1 max-w-sm">${esc(description)}</p>` : ''}
-    </div>
-  `;
+  window.logoutUser = handleLogout;
+
+  const topbarProfile = document.getElementById('topbarProfile');
+  if (topbarProfile) {
+    topbarProfile.style.cursor = 'pointer';
+    topbarProfile.addEventListener('click', handleLogout);
+  }
 }
