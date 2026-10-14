@@ -186,7 +186,7 @@ function renderLifecycleActions(ticket) {
   if (status === 'ABIERTA') {
     if (isAdmin) {
       actionsHtml = `
-        <button class="btn btn-primary btn-full" id="btnOpenAssignModal">
+        <button class="btn btn-primary btn-full" id="btnOpenAssignModal" title="Vincular un técnico disponible (Avanza estado a ASIGNADA)">
           <span class="material-symbols-outlined">person_add</span>
           <span>Asignar Técnico Especialista (ADMIN)</span>
         </button>
@@ -195,14 +195,14 @@ function renderLifecycleActions(ticket) {
       actionsHtml = `
         <div style="padding: 0.85rem; background: var(--surface-container-low); border-radius: var(--radius-lg); text-align: center; color: var(--on-surface-variant); font-size: 0.875rem;">
           <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">hourglass_top</span>
-          Pendiente de asignación por un Administrador
+          Pendiente de asignación por un Administrador TI
         </div>
       `;
     }
   } else if (status === 'ASIGNADA') {
     if (isAssignedTech || isAdmin) {
       actionsHtml = `
-        <button class="btn btn-primary btn-full" id="btnStartProgress">
+        <button class="btn btn-primary btn-full" id="btnStartProgress" title="Registra el inicio de atención activa (Avanza estado a EN_PROCESO)">
           <span class="material-symbols-outlined">play_arrow</span>
           <span>Iniciar Atención Técnica (EN PROCESO)</span>
         </button>
@@ -218,7 +218,7 @@ function renderLifecycleActions(ticket) {
   } else if (status === 'EN_PROCESO') {
     if (isAssignedTech || isAdmin) {
       actionsHtml = `
-        <button class="btn btn-primary btn-full" id="btnMarkResolved" style="background-color: var(--tertiary);">
+        <button class="btn btn-primary btn-full" id="btnMarkResolved" style="background-color: var(--tertiary);" title="Registra la solución técnica del incidente (Avanza estado a RESUELTA)">
           <span class="material-symbols-outlined">check_circle</span>
           <span>Solucionar y Marcar como Resuelta</span>
         </button>
@@ -234,7 +234,7 @@ function renderLifecycleActions(ticket) {
   } else if (status === 'RESUELTA') {
     if (isRequester || isAdmin) {
       actionsHtml = `
-        <button class="btn btn-primary btn-full" id="btnCloseTicket" style="background-color: #0f172a;">
+        <button class="btn btn-primary btn-full" id="btnCloseTicket" style="background-color: #0f172a;" title="Confirma la conformidad del servicio y pasa a estado final (CERRADA)">
           <span class="material-symbols-outlined">verified</span>
           <span>Confirmar Conformidad y Cerrar Ticket</span>
         </button>
