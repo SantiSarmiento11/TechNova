@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupModals();
   setupCommentSubmission();
   setupAuditButton();
+  setupRefreshButton();
 
   await loadTicketDetails();
   await Promise.all([loadComments(), loadHistory()]);
@@ -569,6 +570,30 @@ function setupAuditButton() {
   if (btnAudit) {
     btnAudit.addEventListener('click', () => {
       openModal('auditHistoryModal');
+    });
+  }
+}
+
+/**
+ * Configura el botón de refresco manual del ticket y sus dependencias.
+ */
+function setupRefreshButton() {
+  const btnRefresh = document.getElementById('btnRefreshTicketDetail');
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', async () => {
+      const originalHtml = btnRefresh.innerHTML;
+      try {
+        btnRefresh.disabled = true;
+        btnRefresh.innerHTML = '<span class="material-symbols-outlined spin">sync</span> <span>Sincronizando...</span>';
+        await loadTicketDetails();
+        await Promise.all([loadComments(), loadHistory()]);
+        showToast('Ticket sincronizado correctamente con el servidor.', 'info');
+      } catch (err) {
+        showToast('Error al refrescar ticket: ' + (err.message || ''), 'error');
+      } finally {
+        btnRefresh.disabled = false;
+        btnRefresh.innerHTML = originalHtml;
+      }
     });
   }
 }
