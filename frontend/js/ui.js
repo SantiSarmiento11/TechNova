@@ -167,5 +167,32 @@ export function openModal(titleHtml, bodyHtml) {
     if (e.target === backdrop) close();
   });
 
-  return { backdrop, close };
+/**
+ * Renderiza filas esqueleto animadas para transiciones de carga
+ */
+export function skeletonTableRows(columnsCount = 8, rowsCount = 4) {
+  let html = '';
+  for (let r = 0; r < rowsCount; r++) {
+    html += '<tr class="animate-pulse border-b border-slate-100">';
+    for (let c = 0; c < columnsCount; c++) {
+      html += '<td class="py-4 px-4"><div class="h-4 bg-slate-200/70 rounded-md w-3/4"></div></td>';
+    }
+    html += '</tr>';
+  }
+  return html;
+}
+
+/**
+ * Renderiza un estado vacío estilizado con Lumina Desk
+ */
+export function emptyStateHtml(title, description = '', icon = 'inbox') {
+  return `
+    <div class="py-12 flex flex-col items-center justify-center text-center bg-slate-50/60 rounded-2xl p-6 border border-dashed border-slate-200">
+      <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 mb-3 border border-slate-100">
+        <span class="material-symbols-outlined text-[26px]">${icon}</span>
+      </div>
+      <h4 class="font-bold text-slate-700 text-sm">${esc(title)}</h4>
+      ${description ? `<p class="text-xs text-slate-500 mt-1 max-w-sm">${esc(description)}</p>` : ''}
+    </div>
+  `;
 }
