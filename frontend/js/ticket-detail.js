@@ -22,6 +22,7 @@ import {
   openModal,
   closeModal,
   showToast,
+  showConfirmModal,
 } from './ui.js';
 
 let currentTicket = null;
@@ -301,10 +302,20 @@ function attachLifecycleActionListeners() {
   }
 
   if (btnClose) {
-    btnClose.addEventListener('click', async () => {
-      if (confirm('¿Confirma que la incidencia ha sido resuelta satisfactoriamente y desea cerrar el ticket?')) {
-        await executeStatusTransition('CERRADA', 'Cerrando ticket formalmente...');
-      }
+    btnClose.addEventListener('click', () => {
+      showConfirmModal({
+        title: '¿Confirmar Cierre de Incidencia?',
+        message: '¿Confirma que la incidencia ha sido resuelta satisfactoriamente y desea cerrar el ticket formalmente?',
+        icon: 'task_alt',
+        iconColor: '#16a34a',
+        iconBg: 'rgba(22, 163, 74, 0.1)',
+        confirmText: 'Cerrar Ticket',
+        confirmColor: '#16a34a',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+          await executeStatusTransition('CERRADA', 'Cerrando ticket formalmente...');
+        },
+      });
     });
   }
 }

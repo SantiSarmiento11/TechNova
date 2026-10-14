@@ -265,12 +265,10 @@ export function syncUserInterface() {
     el.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
   });
 
-  // Sincronizar logout global
-  const handleLogout = () => {
-    if (confirm('¿Desea cerrar la sesión actual de TechNova IT Helpdesk?')) {
-      clearSession();
-      window.location.href = 'index.html';
-    }
+  // Sincronizar logout global con diálogo modal nativo de Lumina Desk
+  const handleLogout = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    showLogoutModal();
   };
 
   window.logoutUser = handleLogout;
@@ -280,4 +278,105 @@ export function syncUserInterface() {
     topbarProfile.style.cursor = 'pointer';
     topbarProfile.addEventListener('click', handleLogout);
   }
+}
+
+/**
+ * Diálogo modal de confirmación personalizado con diseño de Lumina Desk
+ * Reemplaza ventanas emergentes nativas del navegador (window.confirm).
+ * @param {Object} options
+ */
+export function showConfirmModal({
+  title = '¿Confirmar acción?',
+  message = '¿Está seguro de continuar?',
+  icon = 'help_outline',
+  iconColor = '#4f46e5',
+  iconBg = 'rgba(79, 70, 229, 0.1)',
+  confirmText = 'Aceptar',
+  confirmColor = '#4f46e5',
+  cancelText = 'Cancelar',
+  onConfirm,
+} = {}) {
+  let modalOverlay = document.getElementById('technovaGlobalConfirmModal');
+  if (!modalOverlay) {
+    modalOverlay = document.createElement('div');
+    modalOverlay.id = 'technovaGlobalConfirmModal';
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.setAttribute('role', 'dialog');
+    modalOverlay.setAttribute('aria-modal', 'true');
+    document.body.appendChild(modalOverlay);
+  }
+
+  modalOverlay.innerHTML = `
+    <div class="modal" style="max-width: 440px; text-align: center; border-radius: var(--radius-2xl); overflow: hidden; box-shadow: var(--shadow-xl); background: var(--surface-container-lowest, #ffffff); border: 1px solid rgba(199, 196, 216, 0.45);">
+      <div style="padding: 2.25rem 2rem 1.25rem; display: flex; flex-direction: column; align-items: center;">
+        <div style="width: 3.75rem; height: 3.75rem; border-radius: var(--radius-full); background: ${iconBg}; color: ${iconColor}; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 32px;">${icon}</span>
+        </div>
+        <h3 class="headline-md" style="font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">${escapeHtml(title)}</h3>
+        <p class="body-md" style="color: var(--on-surface-variant); line-height: 1.5; font-size: 0.9375rem;">
+          ${escapeHtml(message)}
+        </p>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 0.85rem; background: var(--surface-container-low); padding: 1.25rem 1.75rem; border-top: 1px solid rgba(199, 196, 216, 0.35);">
+        <button type="button" class="btn btn-secondary" id="technovaConfirmCancelBtn" style="min-width: 110px; height: 2.75rem;">
+          ${escapeHtml(cancelText)}
+        </button>
+        <button type="button" class="btn btn-primary" id="technovaConfirmAcceptBtn" style="min-width: 140px; height: 2.75rem; background-color: ${confirmColor}; border-color: ${confirmColor}; color: #ffffff;">
+          <span>${escapeHtml(confirmText)}</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  const closeDialog = () => {
+    modalOverlay.classList.remove('active');
+  };
+
+  const cancelBtn = modalOverlay.querySelector('#technovaConfirmCancelBtn');
+  if (cancelBtn) cancelBtn.onclick = closeDialog;
+
+  modalOverlay.onclick = (e) => {
+    if (e.target === modalOverlay) closeDialog();
+  };
+
+  const handleKeydown = (e) => {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+      closeDialog();
+      document.removeEventListener('keydown', handleKeydown);
+    }
+  };
+  document.addEventListener('keydown', handleKeydown);
+
+  const acceptBtn = modalOverlay.querySelector('#technovaConfirmAcceptBtn');
+  if (acceptBtn) {
+    acceptBtn.onclick = () => {
+      closeDialog();
+      if (typeof onConfirm === 'function') {
+        onConfirm();
+      }
+    };
+  }
+
+  modalOverlay.classList.add('active');
+}
+
+/**
+ * Muestra el diálogo modal personalizado de confirmación de cierre de sesión
+ * con el diseño nativo de TechNova Lumina Desk, evitando ventanas del navegador.
+ */
+export function showLogoutModal() {
+  showConfirmModal({
+    title: '¿Cerrar Sesión?',
+    message: '¿Estás seguro de que deseas salir del sistema? Para volver a gestionar o consultar incidencias deberás autenticarte nuevamente con tus credenciales corporativas.',
+    icon: 'logout',
+    iconColor: '#dc2626',
+    iconBg: 'rgba(220, 38, 38, 0.1)',
+    confirmText: 'Cerrar Sesión',
+    confirmColor: '#dc2626',
+    cancelText: 'Cancelar',
+    onConfirm: () => {
+      clearSession();
+      window.location.href = 'index.html';
+    },
+  });
 }
