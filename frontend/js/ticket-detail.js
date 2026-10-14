@@ -409,12 +409,32 @@ async function loadComments() {
 function setupCommentSubmission() {
   const input = document.getElementById('comment-input');
   const submitBtn = document.getElementById('submitCommentBtn');
+  const charCounter = document.getElementById('commentCharCount');
+
+  if (input && charCounter) {
+    input.addEventListener('input', () => {
+      const len = input.value.length;
+      charCounter.textContent = `${len} / 2000`;
+      if (len > 1900) {
+        charCounter.style.color = '#b91c1c';
+        charCounter.style.fontWeight = '700';
+      } else {
+        charCounter.style.color = 'var(--outline)';
+        charCounter.style.fontWeight = 'normal';
+      }
+    });
+  }
 
   if (submitBtn && input) {
     submitBtn.addEventListener('click', async () => {
       const content = input.value.trim();
       if (!content) {
         showToast('El comentario no puede estar vacío.', 'warning');
+        return;
+      }
+
+      if (content.length > 2000) {
+        showToast('El comentario excede el límite máximo de 2000 caracteres permitido por el servidor.', 'warning');
         return;
       }
 
@@ -426,6 +446,11 @@ function setupCommentSubmission() {
         await post(ENDPOINTS.TICKETS.COMMENTS(ticketId), { content });
 
         input.value = '';
+        if (charCounter) {
+          charCounter.textContent = '0 / 2000';
+          charCounter.style.color = 'var(--outline)';
+          charCounter.style.fontWeight = 'normal';
+        }
         showToast('Comentario publicado correctamente.', 'success');
         await loadComments();
       } catch (err) {

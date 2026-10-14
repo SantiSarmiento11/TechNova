@@ -201,8 +201,11 @@
 
             <!-- New Comment Box -->
             <div style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 1px solid var(--surface-container-low); padding-top: 1rem;">
-              <label class="form-label" for="comment-input">Agregar comentario o nota técnica</label>
-              <textarea class="form-textarea" id="comment-input" rows="3" placeholder="Escriba su actualización o respuesta técnica autorizada..."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label class="form-label" for="comment-input" style="margin-bottom: 0;">Agregar comentario o nota técnica</label>
+                <span id="commentCharCount" style="font-size: 0.75rem; color: var(--outline);">0 / 2000</span>
+              </div>
+              <textarea class="form-textarea" id="comment-input" rows="3" maxlength="2000" placeholder="Escriba su actualización o respuesta técnica autorizada..."></textarea>
               <div style="display: flex; justify-content: flex-end;">
                 <button class="btn btn-primary" id="submitCommentBtn">
                   <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
