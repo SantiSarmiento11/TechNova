@@ -8,6 +8,7 @@ import { ENDPOINTS } from './config.js';
 import { getUser, hasRole } from './session.js';
 import {
   formatDate,
+  formatSla,
   getStatusBadge,
   getPriorityBadge,
   escapeHtml,
@@ -228,7 +229,7 @@ async function loadRecentTickets() {
             </div>
           </td>
           <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
-            ${formatDate(t.dueDate)}
+            ${formatSla(t.dueDate, t.statusName)}
           </td>
           <td style="white-space: nowrap; font-size: 0.825rem; color: var(--on-surface-variant);">
             ${formatDate(t.updatedAt || t.createdAt)}
