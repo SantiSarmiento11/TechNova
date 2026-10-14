@@ -228,13 +228,27 @@ export function syncUserInterface() {
   const displayName = user.fullName || user.email;
   const initials = (user.firstName ? user.firstName[0] : '') + (user.lastName ? user.lastName[0] : '') || 'U';
 
-  // Sincronizar elementos en el sidebar
+  // Sincronizar elementos en el sidebar y topbar
   document.querySelectorAll('.sidebar-user-name').forEach((el) => {
     el.textContent = displayName;
   });
 
   document.querySelectorAll('.sidebar-user-role').forEach((el) => {
     el.textContent = roleLabel;
+  });
+
+  document.querySelectorAll('.sidebar-user-avatar, .topbar-profile-avatar').forEach((el) => {
+    el.textContent = initials;
+    if (hasRole('ADMIN')) {
+      el.style.backgroundColor = 'var(--primary-container)';
+      el.style.color = '#ffffff';
+    } else if (hasRole('TECHNICIAN')) {
+      el.style.backgroundColor = 'var(--secondary-container)';
+      el.style.color = '#ffffff';
+    } else {
+      el.style.backgroundColor = 'var(--surface-container-high)';
+      el.style.color = 'var(--on-surface)';
+    }
   });
 
   // Ocultar enlace a "Reportes y Métricas" para usuarios que NO sean ADMIN
