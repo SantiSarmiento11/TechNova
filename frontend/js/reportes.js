@@ -15,8 +15,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  setupRefreshHandler();
   await loadDashboardReport();
 });
+
+/**
+ * Configura el botón de refresco de métricas ejecutivas.
+ */
+function setupRefreshHandler() {
+  const btn = document.getElementById('btnRefreshReports');
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (icon) icon.classList.add('spinner-primary');
+      try {
+        await loadDashboardReport();
+        showToast('Métricas del sistema actualizadas.', 'info', 2000);
+      } catch (err) {
+        showToast('Error al refrescar métricas.', 'error');
+      } finally {
+        btn.disabled = false;
+        if (icon) icon.classList.remove('spinner-primary');
+      }
+    });
+  }
+}
 
 /**
  * Muestra pantalla de acceso restringido para usuarios sin rol ADMIN.
