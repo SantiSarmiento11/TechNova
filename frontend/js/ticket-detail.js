@@ -51,7 +51,23 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadTicketDetails() {
   try {
-    const data = await get(ENDPOINTS.TICKETS.BY_ID(ticketId));
+    let numericId = Number(ticketId);
+
+    // Si el parámetro no es un número puro (ej. TK-0001), buscar por código en la API
+    if (isNaN(numericId) || !Number.isInteger(numericId)) {
+      const searchResults = await get(`${ENDPOINTS.TICKETS.BASE}?query=${encodeURIComponent(ticketId)}`);
+      const matched = Array.isArray(searchResults)
+        ? searchResults.find((t) => t.code && t.code.toUpperCase() === ticketId.toUpperCase()) || searchResults[0]
+        : null;
+
+      if (!matched || !matched.id) {
+        throw new Error(`No se encontró ningún ticket con el código "${ticketId}".`);
+      }
+      numericId = matched.id;
+      ticketId = String(numericId);
+    }
+
+    const data = await get(ENDPOINTS.TICKETS.BY_ID(numericId));
     if (!data) throw new Error('El ticket solicitado no fue encontrado.');
 
     currentTicket = data;
