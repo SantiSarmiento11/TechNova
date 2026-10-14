@@ -31,6 +31,11 @@ export async function mountShell(activePage, pageTitle = '') {
     const profile = await get('/api/auth/me');
     if (profile) {
       user = { ...user, ...profile };
+      // Actualizar localStorage para reflejar cambios de rol o nombres actualizados
+      const currentToken = localStorage.getItem('technova_token');
+      if (currentToken) {
+        localStorage.setItem('technova_user', JSON.stringify(user));
+      }
     }
   } catch (e) {
     console.warn('No se pudo refrescar perfil en línea:', e);
