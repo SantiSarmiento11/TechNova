@@ -20,7 +20,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Notificaciones no intrusivas
   setupNotifications();
+
+  // Accesibilidad y atajos de teclado globales
+  setupKeyboardShortcuts();
 });
+
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    // Escape cierra cualquier modal activo
+    if (e.key === 'Escape') {
+      const activeModals = document.querySelectorAll('.modal-overlay.active');
+      activeModals.forEach((modal) => {
+        modal.classList.remove('active');
+      });
+    }
+
+    // Ctrl+K o Cmd+K para enfocar el buscador principal si existe
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      const searchInput = document.getElementById('filter-buscar') || document.querySelector('input[type="search"]');
+      if (searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+        if (typeof searchInput.select === 'function') searchInput.select();
+      }
+    }
+  });
+}
 
 function syncActiveNavigation() {
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
