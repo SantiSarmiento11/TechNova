@@ -194,19 +194,39 @@ function applyFiltersAndRender() {
   }
 
   if (filtered.length === 0) {
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="9" style="text-align: center; padding: 3.5rem 1.5rem; color: var(--on-surface-variant);">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-            <span class="material-symbols-outlined" style="font-size: 36px; color: var(--outline-variant);">search_off</span>
-            <p class="label-lg">No se encontraron tickets con los filtros aplicados</p>
-            <button class="btn btn-secondary btn-sm" id="btnResetFiltersInline">Restablecer filtros</button>
-          </div>
-        </td>
-      </tr>
-    `;
-    const resetBtn = document.getElementById('btnResetFiltersInline');
-    if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+    if (allTickets.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align: center; padding: 3.5rem 1.5rem; color: var(--on-surface-variant);">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.65rem;">
+              <span class="material-symbols-outlined" style="font-size: 42px; color: var(--outline-variant);">confirmation_number</span>
+              <p class="label-lg" style="font-size: 1.05rem; color: var(--on-surface);">No hay tickets registrados en su bandeja</p>
+              <p class="body-sm" style="color: var(--on-surface-variant); max-width: 380px;">Cree una nueva incidencia técnica para iniciar la atención de soporte.</p>
+              <button class="btn btn-primary btn-sm" id="btnEmptyCreateTicket" type="button" style="margin-top: 0.25rem;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
+                <span>Crear mi primer ticket</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      const createBtn = document.getElementById('btnEmptyCreateTicket');
+      if (createBtn) createBtn.addEventListener('click', () => openModal('newTicketModal'));
+    } else {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align: center; padding: 3.5rem 1.5rem; color: var(--on-surface-variant);">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+              <span class="material-symbols-outlined" style="font-size: 36px; color: var(--outline-variant);">search_off</span>
+              <p class="label-lg">No se encontraron tickets con los criterios de búsqueda aplicados</p>
+              <button class="btn btn-secondary btn-sm" id="btnResetFiltersInline">Restablecer filtros</button>
+            </div>
+          </td>
+        </tr>
+      `;
+      const resetBtn = document.getElementById('btnResetFiltersInline');
+      if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+    }
     return;
   }
 
