@@ -4,6 +4,7 @@
  */
 
 export const API_BASE = 'http://localhost:8080';
+export const FRONTEND_PORT = 5050;
 
 export const ENDPOINTS = {
   AUTH: {
