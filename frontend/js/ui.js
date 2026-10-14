@@ -79,13 +79,13 @@ export function statusBadge(status) {
  * Renderiza el badge de prioridad con SLA asociado
  */
 export function priorityBadge(priority) {
-  const normalized = (priority || '').toUpperCase();
+  const normalized = (priority || '').toUpperCase().trim();
   const label = PRIORITY_LABELS[normalized] || normalized || 'Media';
 
   const styles = {
     BAJA: 'text-emerald-700 bg-emerald-50 ring-1 ring-emerald-700/20',
     MEDIA: 'text-blue-700 bg-blue-50 ring-1 ring-blue-700/20',
-    ALTA: 'text-amber-700 bg-amber-50 ring-1 ring-amber-700/20',
+    ALTA: 'text-amber-800 bg-amber-50 ring-1 ring-amber-700/20',
     CRITICA: 'text-rose-700 bg-rose-50 ring-1 ring-rose-700/20 font-bold',
   };
 
@@ -93,7 +93,7 @@ export function priorityBadge(priority) {
 
   return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${styleClass}">
     <span class="w-1.5 h-1.5 rounded-full ${normalized === 'CRITICA' ? 'bg-rose-600 animate-pulse' : 'bg-current'}"></span>
-    ${esc(label)}
+    <span>${esc(label)}</span>
   </span>`;
 }
 
