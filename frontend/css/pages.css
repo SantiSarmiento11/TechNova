@@ -1,0 +1,250 @@
+/* ==========================================================================
+   Page Specific Layouts & Utilities - Clean & Adaptive Full Width
+   ========================================================================== */
+
+/* Login View */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    radial-gradient(at 10% 20%, rgba(254, 240, 138, 0.35) 0px, transparent 50%),
+    radial-gradient(at 85% 15%, rgba(186, 230, 253, 0.45) 0px, transparent 55%),
+    radial-gradient(at 25% 75%, rgba(233, 213, 255, 0.4) 0px, transparent 50%),
+    radial-gradient(at 90% 85%, rgba(254, 205, 211, 0.3) 0px, transparent 50%),
+    #ffffff;
+  box-sizing: border-box;
+}
+
+.login-nav {
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid rgba(199, 196, 216, 0.4);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .login-container {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+.login-hero-card {
+  margin-top: 1.75rem;
+  padding: 1.75rem;
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(199, 196, 216, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(226, 232, 255, 0.4) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  box-sizing: border-box;
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(199, 196, 216, 0.4);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 20px 40px -15px rgba(53, 37, 205, 0.08), 0 0 0 1px rgba(211, 228, 254, 0.6);
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-footer {
+  padding: 1.25rem 2.5rem;
+  border-top: 1px solid rgba(199, 196, 216, 0.4);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  box-sizing: border-box;
+}
+
+/* Two-column Dashboard Grid (8 cols / 4 cols) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1080px) {
+  .dashboard-grid {
+    grid-template-columns: 8fr 4fr;
+  }
+}
+
+/* Reports Grid */
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1080px) {
+  .reports-grid {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+/* Ticket Detail Grid */
+.ticket-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1080px) {
+  .ticket-detail-grid {
+    grid-template-columns: 8fr 4fr;
+  }
+}
+
+/* Details list (DL) styling */
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  gap: 1rem;
+}
+
+.meta-label {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+}
+
+.meta-val {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+/* Tab filter pills */
+.tab-pills {
+  display: inline-flex;
+  padding: 0.25rem;
+  background-color: var(--surface-container-low);
+  border-radius: var(--radius-xl);
+  gap: 0.25rem;
+}
+
+.tab-pill {
+  padding: 0.4rem 0.875rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-pill.active {
+  background-color: var(--surface-container-lowest);
+  color: var(--on-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Category Legend */
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.legend-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  background-color: rgba(239, 244, 255, 0.6);
+  border-radius: var(--radius-lg);
+  box-sizing: border-box;
+}
+
+.legend-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* Toolbar filters in tickets.html */
+.filters-toolbar {
+  background-color: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(199, 196, 216, 0.4);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: 2.5fr 1.25fr 1.25fr 1.25fr auto;
+  gap: 1.25rem;
+  align-items: flex-end;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .filters-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
