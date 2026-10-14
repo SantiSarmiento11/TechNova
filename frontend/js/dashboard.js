@@ -23,9 +23,33 @@ let availablePriorities = [];
 document.addEventListener('DOMContentLoaded', async () => {
   setupGreeting();
   setupModalHandlers();
+  setupRefreshHandler();
   await loadCatalogs();
   await Promise.all([loadMetrics(), loadRecentTickets()]);
 });
+
+/**
+ * Configura el botón de refresco manual del tablero.
+ */
+function setupRefreshHandler() {
+  const refreshBtn = document.getElementById('btnRefreshDashboard');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.disabled = true;
+      const icon = refreshBtn.querySelector('.material-symbols-outlined');
+      if (icon) icon.classList.add('spinner-primary');
+      try {
+        await Promise.all([loadMetrics(), loadRecentTickets()]);
+        showToast('Datos del tablero sincronizados con éxito.', 'info', 2000);
+      } catch (err) {
+        showToast('Error al refrescar datos del servidor.', 'error');
+      } finally {
+        refreshBtn.disabled = false;
+        if (icon) icon.classList.remove('spinner-primary');
+      }
+    });
+  }
+}
 
 /**
  * Personaliza el saludo del encabezado según el usuario autenticado.
