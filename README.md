@@ -37,7 +37,7 @@
 | **Base de Datos** | <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" height="20" /> **PostgreSQL**                                                                                                                                                                                                                                                               | `15+`      | Motor de base de datos relacional con índices y restricciones.       |
 | **Build Tool**    | <img src="https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white" alt="Gradle" height="20" /> **Gradle** (Wrapper)                                                                                                                                                                                                                                                                     | `9.7.1`    | Automatización de compilación y gestión de dependencias.             |
 | **Documentación** | <img src="https://img.shields.io/badge/Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black" alt="Swagger" height="20" /> **SpringDoc OpenAPI**                                                                                                                                                                                                                                                                 | `2.8.5`    | Documentación interactiva Swagger UI y especificación OpenAPI 3.     |
-| **Frontend**      | <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JS" height="20" /> <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5" height="20" /> <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3" height="20" /> **HTML5 + CSS3 + Vanilla JS** | `ES6+`     | Frontend modular SPA ligero, responsivo y sin dependencias externas. |
+| **Frontend**      | <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JS" height="20" /> <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind" height="20" /> **Lumina Desk (Tailwind + ES6 Modules)** | `2.0 (Lumina)` | Nueva suite de Front-end basada en tokens Lumina Support, modular y conectada a la API REST. |
 
 ---
 
@@ -177,41 +177,50 @@ Una vez iniciado el servidor backend, la interfaz interactiva de Swagger UI y la
 
 ---
 
-### Paso 3: Ejecutar el Frontend
+### Paso 3: Ejecutar el Frontend (Puerto 5050)
 
-El frontend está implementado en **Vanilla JavaScript** y HTML5 puro, por lo que no requiere instalación de dependencias ni procesos de compilación:
+El frontend de **Lumina Desk** está implementado en arquitectura modular **Vanilla ES6 + CSS3 Tokens**, optimizado para servirse en el puerto **`5050`** mediante la extensión **Live Server** de VS Code o scripts locales:
 
-* **Opción A (VS Code Live Server):** Abrir la carpeta `frontend/` y seleccionar `index.html` > *Open with Live Server*.
-* **Opción B (Python HTTP Server):**
-  
-  ```bash
-  cd frontend
-  python -m http.server 3000
+* **Opción A (Recomendada - Script Windows en Puerto 5050):**
+  Ejecutar el script en la raíz del repositorio:
+  ```cmd
+  iniciar_frontend.bat
   ```
-  
-  Abrir en el navegador: `http://localhost:3000`.
-* **Opción C (Node.js serve):**
-  
+* **Opción B (VS Code Live Server en Puerto 5050):**
+  1. Abrir la carpeta `frontend/` en VS Code.
+  2. Verificar que la configuración de Live Server (`liveServer.settings.port`) esté configurada en `5050`.
+  3. Clic derecho en `frontend/index.html` > *Open with Live Server*.
+* **Opción C (Node.js / npx en Puerto 5050):**
   ```bash
-  npx serve frontend -p 3000
+  npx http-server frontend -p 5050 -c-1 --cors
   ```
+* **Opción D (Python en Puerto 5050):**
+  ```bash
+  python -m http.server 5050 --directory frontend
+  ```
+
+Navegar a: `http://localhost:5050/index.html`.
 
 ---
 
-## 8. Endpoints Principales de la API
+## 8. Endpoints Principales de la API (Spring Boot REST)
 
 | Método  | Endpoint                     | Acceso Requerido                | Descripción                                                               |
 |:-------:|:---------------------------- |:-------------------------------:|:------------------------------------------------------------------------- |
-| `POST`  | `/api/auth/login`            | Público                         | Autenticación y generación de token JWT.                                  |
+| `POST`  | `/api/auth/login`            | Público                         | Autenticación con email/password y retorno de token JWT.                  |
+| `GET`   | `/api/auth/me`               | Autenticado                     | Obtiene el perfil del usuario autenticado con sus roles y permisos.      |
 | `GET`   | `/api/tickets`               | Autenticado                     | Listar tickets con filtros (USER consulta propios, ADMIN consulta todos). |
-| `POST`  | `/api/tickets`               | `USER` / `ADMIN`                | Creación de una nueva solicitud de soporte.                               |
-| `GET`   | `/api/tickets/{id}`          | Autenticado                     | Detalle completo de un ticket con historial y comentarios.                |
-| `PUT`   | `/api/tickets/{id}/assign`   | `ADMIN`                         | Asignación o reasignación manual de técnico.                              |
-| `PATCH` | `/api/tickets/{id}/status`   | `TECHNICIAN` / `ADMIN` / `USER` | Cambio de estado controlado por la máquina de estados.                    |
-| `POST`  | `/api/tickets/{id}/comments` | Autenticado                     | Registro de comentarios y notas de seguimiento en el ticket.              |
-| `GET`   | `/api/admin/dashboard`       | `ADMIN`                         | Métricas operativas, conteo por estado, SLA y carga de trabajo.           |
-| `GET`   | `/api/categories`            | Autenticado                     | Consulta del catálogo de categorías activas.                              |
-| `GET`   | `/api/priorities`            | Autenticado                     | Consulta del catálogo de prioridades y niveles de SLA.                    |
+| `POST`  | `/api/tickets`               | `USER` / `ADMIN`                | Creación de una nueva solicitud de soporte con SLA automático.            |
+| `GET`   | `/api/tickets/{id}`          | Autenticado                     | Detalle completo de un ticket con solicitante, técnico y SLA.             |
+| `PUT`   | `/api/tickets/{id}/assign`   | `ADMIN`                         | Asignación o reasignación manual de técnico responsable.                 |
+| `PUT`   | `/api/tickets/{id}/status`   | `TECHNICIAN` / `ADMIN` / `USER` | Cambio de estado gobernado por la máquina de estados estricta.            |
+| `GET`   | `/api/tickets/{id}/comments` | Autenticado                     | Lista de comentarios y notas de resolución del ticket.                    |
+| `POST`  | `/api/tickets/{id}/comments` | Autenticado                     | Registro de comentarios y respuestas técnicas (máx. 2000 caracteres).    |
+| `GET`   | `/api/tickets/{id}/history`  | Autenticado                     | Bitácora inmutable de auditoría de transiciones de estado.                |
+| `GET`   | `/api/users/technicians`     | `ADMIN`                         | Catálogo de técnicos activos disponibles para asignación.                 |
+| `GET`   | `/api/admin/dashboard`       | `ADMIN`                         | Métricas ejecutivas globales, cumplimiento SLA y carga de trabajo.        |
+| `GET`   | `/api/categories`            | Autenticado                     | Catálogo dinámico de categorías activas.                                  |
+| `GET`   | `/api/priorities`            | Autenticado                     | Catálogo dinámico de prioridades y límites de tiempo SLA.                 |
 
 ---
 
@@ -219,14 +228,33 @@ El frontend está implementado en **Vanilla JavaScript** y HTML5 puro, por lo qu
 
 ```text
 TechNova-IT-Helpdesk/
-├── frontend/                     # Aplicación web Vanilla JS (SPA)
-│   ├── css/styles.css            # Estilos globales y diseño responsivo
-│   ├── js/                       # Módulos JS (api.js, session.js, ui.js, auth.js, etc.)
-│   ├── index.html                # Página de inicio de sesión
-│   ├── tickets.html              # Listado y gestión de solicitudes
-│   ├── ticket-detail.html        # Detalle de ticket, comentarios y transiciones
-│   ├── dashboard.html            # Panel de métricas y analítica
-│   └── admin.html                # Panel administrativo y asignación
+├── frontend/                     # Aplicación web Vanilla JS (SPA Lumina Desk)
+│   ├── css/
+│   │   ├── variables.css         # Design tokens, variables de color e iconografía
+│   │   ├── base.css              # Reseteo CSS, tipografía Plus Jakarta Sans / JetBrains Mono
+│   │   ├── layout.css            # Shell responsivo, drawer móvil y topbar
+│   │   ├── components.css        # Tarjetas KPI, tablas, badges, modales y spinners
+│   │   └── pages.css             # Estilos de vistas y soporte de impresión (@media print)
+│   ├── js/
+│   │   ├── config.js             # Constantes y catálogo de endpoints de la API
+│   │   ├── session.js            # Manejo de JWT en localStorage, decodificación y RBAC
+│   │   ├── api.js                # Cliente HTTP universal con interceptor JWT y ApiError
+│   │   ├── ui.js                 # Toasts, formateo de fechas, cálculo SLA y escaping XSS
+│   │   ├── app.js                # Inicializador global, atajos de teclado y detector de red
+│   │   ├── auth.js               # Controlador de inicio de sesión
+│   │   ├── dashboard.js          # Métricas operativas en vivo y tabla de tickets recientes
+│   │   ├── tickets.js            # Catálogo reactivo, búsqueda multi-criterio y paginación
+│   │   ├── ticket-detail.js      # Detalle del ticket, máquina de estados y comentarios
+│   │   ├── reportes.js           # Métricas ejecutivas y distribución de técnicos (ADMIN)
+│   │   ├── session.test.js       # Suite de pruebas unitarias para sesión y permisos RBAC
+│   │   ├── api.test.js           # Suite de pruebas unitarias para cliente HTTP
+│   │   └── ui.test.js            # Suite de pruebas unitarias para utilidades y SLA
+│   ├── index.html                # Vista de inicio de sesión
+│   ├── dashboard.html            # Panel operativo en tiempo real
+│   ├── tickets.html              # Directorio y gestión integral de incidencias
+│   ├── ticket-detail.html        # Detalle de ticket, transiciones y auditoría
+│   ├── reportes.html             # Métricas analíticas ejecutivas (exclusivo ADMIN)
+│   └── tests.html                # Suite interactiva de pruebas unitarias en navegador
 ├── project/                      # Backend Spring Boot (Java 21)
 │   ├── src/main/java/tech/com/project/
 │   │   ├── controller/           # Controladores REST API
@@ -239,9 +267,10 @@ TechNova-IT-Helpdesk/
 │   │   └── technova_schema_and_data.sql # Script SQL inicial (DDL + Semilla)
 │   ├── build.gradle              # Dependencias y configuración Gradle
 │   └── gradlew / gradlew.bat     # Wrapper de Gradle
+├── iniciar_frontend.bat          # Lanzador automático del frontend en puerto 5050
 ├── media/                        # Capturas y evidencias visuales del proyecto
 ├── ERS TechNova.md               # Especificación de Requisitos de Software formal
-└── README.md                     # Documentación principal simplificada del proyecto
+└── README.md                     # Documentación principal del proyecto
 ```
 
 ---
