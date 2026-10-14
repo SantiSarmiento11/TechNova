@@ -148,7 +148,7 @@ export async function mountShell(activePage, pageTitle = '') {
   document.getElementById('btn-logout')?.addEventListener('click', () => {
     if (confirm('¿Desea cerrar la sesión actual de TechNova Helpdesk?')) {
       clearSession();
-      window.location.replace('index.html');
+      window.location.replace('index.html?logged_out=1');
     }
   });
 
