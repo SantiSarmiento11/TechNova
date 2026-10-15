@@ -9,8 +9,7 @@
   <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 15+" />
   <img src="https://img.shields.io/badge/Gradle-9.7.1-02303A?style=flat-square&logo=gradle&logoColor=white" alt="Gradle 9.7.1" />
   <img src="https://img.shields.io/badge/Swagger_OpenAPI-2.8.5-85EA2D?style=flat-square&logo=swagger&logoColor=black" alt="Swagger OpenAPI" />
-  <img src="https://img.shields.io/badge/JWT-0.12.6-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT" /><img width="1432" height="922" alt="Captura de pantalla 2026-10-14 185928" src="https://github.com/user-attachments/assets/669f2384-9b00-4328-800b-b4045adb8c1b" />
-
+  <img src="https://img.shields.io/badge/JWT-0.12.6-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT" />
   <img src="https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript" />
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5" />
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3" />
