@@ -171,3 +171,13 @@ El flujo de soporte tecnico opera de la siguiente manera:
 - `tickets.html`: Tabla interactiva con filtros por estado, prioridad, agente y rango de fechas.
 - `ticket-detail.html`: Historial cronologico de comentarios, auditoria de cambios y reasignacion de solicitudes.
 - `reportes.html`: Analitica consolidada y exportacion de metricas de gestion.
+
+### Ciclo de Vida del Ticket (Estados Formales)
+
+```text
+[ABIERTO] -> [ASIGNADO] -> [EN_PROCESO] -> [RESUELTO] -> [CERRADO]
+                |               |
+                v               v
+          [EN_ESPERA]     [REABIERTO]
+```
+Cada transicion de estado valida que el usuario ejecutor posea los permisos pertinentes.
