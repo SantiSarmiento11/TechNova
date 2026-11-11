@@ -74,3 +74,7 @@ TechNova/
     ├── gradlew / gradlew.bat# Wrappers de construccion Gradle
     └── src/main/java/...    # Controladores, servicios, modelos y seguridad
 ```
+
+## Stack Tecnologico
+
+Ecosistema de tecnologias enterprise con soporte a largo plazo (LTS) y maximas garantias de seguridad.
