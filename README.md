@@ -206,3 +206,10 @@ La aplicacion cuenta con un controlador `@RestControllerAdvice` que captura fall
 - Pruebas de integracion mediante el archivo `auth-tests.http` validando el ciclo completo de autenticacion y consulta con tokens portadores.
 - Pruebas unitarias de servicios de tickets asegurando cumplimiento de tiempos maximos de respuesta (SLA).
 - Pruebas de repositorios JPA verificando consistencia referencial y aislamiento transaccional.
+
+### Ejecucion de Pruebas con Gradle
+
+```bash
+cd project
+./gradlew test --info
+```
