@@ -50,3 +50,27 @@ flowchart TD
     E --> C
     C --> B
 ```
+
+### Estructura de Directorios
+
+```text
+TechNova/
+├── .env.example             # Ejemplo de configuracion de base de datos y llaves JWT
+├── .gitignore               # Reglas de exclusion de artefactos de compilacion
+├── auth-tests.http          # Suite de pruebas HTTP para VS Code REST Client
+├── ERS TechNova.md          # Especificacion de Requerimientos de Software formal
+├── README.md                # Documentacion tecnica de ingenieria del proyecto
+├── frontend/                # Aplicacion de interfaz de usuario desacoplada
+│   ├── index.html           # Vista principal y acceso a la plataforma
+│   ├── dashboard.html       # Centro de control con metricas e indicadores globales
+│   ├── tickets.html         # Bandeja de entrada y gestion tabular de solicitudes
+│   ├── ticket-detail.html   # Vista individual de conversacion, adjuntos y cambios de estado
+│   ├── reportes.html        # Tableros estadisticos y metricas operativas
+│   ├── tests.html           # Interfaz para ejecucion de validaciones en navegador
+│   ├── css/                 # Estilos estructurados (base, componentes, layout, paginas)
+│   └── js/                  # Modulos JavaScript del cliente (api.js, app.js)
+└── project/                 # Modulo Backend Spring Boot en Java
+    ├── build.gradle         # Manifiesto de dependencias Gradle y plugins
+    ├── gradlew / gradlew.bat# Wrappers de construccion Gradle
+    └── src/main/java/...    # Controladores, servicios, modelos y seguridad
+```
