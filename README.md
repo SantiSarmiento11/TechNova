@@ -181,3 +181,15 @@ El flujo de soporte tecnico opera de la siguiente manera:
           [EN_ESPERA]     [REABIERTO]
 ```
 Cada transicion de estado valida que el usuario ejecutor posea los permisos pertinentes.
+
+### Especificacion de Endpoints REST Principales
+
+| Metodo | Endpoint | Descripcion | Permisos |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Inicio de sesion y emision de token JWT | Publico |
+| `POST` | `/api/auth/register` | Registro de nuevos usuarios en la organizacion | `ROLE_ADMIN` |
+| `GET` | `/api/tickets` | Consulta paginada con filtros | Autenticado |
+| `POST` | `/api/tickets` | Creacion de nuevo requerimiento | Autenticado |
+| `GET` | `/api/tickets/{id}` | Detalle completo y conversacion del ticket | Involucrados / Admin |
+| `PUT` | `/api/tickets/{id}/status` | Transicion de estado de resolucion | `ROLE_AGENTE`, `ROLE_ADMIN` |
+| `GET` | `/api/reportes/sla` | Metricas agregadas de rendimiento de SLAs | `ROLE_ADMIN` |
