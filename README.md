@@ -213,3 +213,7 @@ La aplicacion cuenta con un controlador `@RestControllerAdvice` que captura fall
 cd project
 ./gradlew test --info
 ```
+
+## Auditoria y Trazabilidad Transaccional
+
+Cada modificacion sobre un ticket registra automaticamente en tabla historica: identificador del usuario, estado anterior, nuevo estado, comentario y marca temporal precisa.
