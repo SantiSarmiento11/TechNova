@@ -223,3 +223,12 @@ Cada modificacion sobre un ticket registra automaticamente en tabla historica: i
 - Almacenamiento seguro de credenciales con funcion hash `BCrypt`.
 - Deshabilitacion de sesiones con estado en servidor (`SessionCreationPolicy.STATELESS`).
 - Cabeceras HTTP de seguridad gestionadas por Spring Security (X-Content-Type-Options, Strict-Transport-Security, X-Frame-Options).
+
+## Despliegue en Entornos de Produccion
+
+- Generar el binario ejecutable autocontenido:
+```bash
+./gradlew bootJar
+```
+- Ejecutar el jar resultante en contenedor Docker optimizado sobre Alpine Linux o Eclipse Temurin JRE.
+- Configurar pool de conexiones HikariCP ajustado a los limites de la instancia MySQL en produccion.
