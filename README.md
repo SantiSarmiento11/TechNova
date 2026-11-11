@@ -11,3 +11,11 @@ Plataforma corporativa de nivel empresarial para la recepcion, clasificacion, re
 ## Resumen Ejecutivo
 
 En entornos corporativos medianos y grandes, la falta de trazabilidad en solicitudes de soporte ocasiona incumplimientos de acuerdos de nivel de servicio (SLA), duplicidad de esfuerzos y perdida de visibilidad sobre problemas recurrentes en infraestructura. TechNova proporciona una solucion centralizada y escalable construida sobre Spring Boot 4 y MySQL, permitiendo a las organizaciones canalizar solicitudes, asignar prioridades dinamicas y emitir reportes de desempeno de equipos de soporte.
+
+## Alcance y Objetivos de Negocio
+
+- Registro y ciclo de vida de tickets de soporte (Abierto, Asignado, En Analisis, En Espera de Proveedor, Resuelto, Cerrado).
+- Gestion de acuerdos de nivel de servicio (SLA) categorizados por impacto y urgencia.
+- Seguridad perimetral robusta con autenticacion JWT y control de acceso basado en roles (Admin, Agente Tecnico, Empleado Solicitante).
+- Generacion de metricas operativas, tiempos de primera respuesta y resolucion en modulo de reportes analiticos.
+- Documentacion y pruebas estandarizadas de endpoints mediante archivos `.http` y Swagger UI.
