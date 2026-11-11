@@ -237,3 +237,11 @@ Cada modificacion sobre un ticket registra automaticamente en tabla historica: i
 
 - Indices compuestos en la tabla de tickets para busquedas de alta frecuencia (`estado`, `prioridad`, `fecha_creacion`).
 - Consultas paginadas (`Pageable`) para evitar recuperacion masiva de miles de registros en memoria.
+
+## Matriz de Resolucion de Incidencias
+
+| Error / Sintoma | Causa Frecuente | Solucion |
+| :--- | :--- | :--- |
+| `Communications link failure` | Servidor MySQL detenido o puerto incorrecto | Verificar que el servicio MySQL este activo y responda en el puerto 3306. |
+| `Access denied for user 'root'@'localhost'` | Credencial de base de datos no coincide | Validar `SPRING_DATASOURCE_PASSWORD` en el archivo de configuracion. |
+| Error 401 en peticiones REST | Ausencia o expiracion de cabecera `Authorization` | Incluir `Authorization: Bearer <token_valido>` en la cabecera de la peticion. |
