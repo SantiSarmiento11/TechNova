@@ -245,3 +245,10 @@ Cada modificacion sobre un ticket registra automaticamente en tabla historica: i
 | `Communications link failure` | Servidor MySQL detenido o puerto incorrecto | Verificar que el servicio MySQL este activo y responda en el puerto 3306. |
 | `Access denied for user 'root'@'localhost'` | Credencial de base de datos no coincide | Validar `SPRING_DATASOURCE_PASSWORD` en el archivo de configuracion. |
 | Error 401 en peticiones REST | Ausencia o expiracion de cabecera `Authorization` | Incluir `Authorization: Bearer <token_valido>` en la cabecera de la peticion. |
+
+## Guia de Contribucion
+
+1. Realizar un Fork del repositorio.
+2. Crear una rama de funcionalidad (`git checkout -b feature/modulo-satisfaccion-cliente`).
+3. Confirmar cambios con Conventional Commits (`git commit -m 'feat: incorporar encuesta de satisfaccion tras cierre de ticket'`).
+4. Publicar la rama y generar un Pull Request sustentado.
