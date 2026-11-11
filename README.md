@@ -232,3 +232,8 @@ Cada modificacion sobre un ticket registra automaticamente en tabla historica: i
 ```
 - Ejecutar el jar resultante en contenedor Docker optimizado sobre Alpine Linux o Eclipse Temurin JRE.
 - Configurar pool de conexiones HikariCP ajustado a los limites de la instancia MySQL en produccion.
+
+## Optimizacion de Rendimiento de Base de Datos
+
+- Indices compuestos en la tabla de tickets para busquedas de alta frecuencia (`estado`, `prioridad`, `fecha_creacion`).
+- Consultas paginadas (`Pageable`) para evitar recuperacion masiva de miles de registros en memoria.
