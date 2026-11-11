@@ -88,3 +88,9 @@ Ecosistema de tecnologias enterprise con soporte a largo plazo (LTS) y maximas g
 - ![Gradle](https://img.shields.io/badge/Gradle_Build-02303A?style=for-the-badge&logo=gradle&logoColor=white) Construccion declarativa y optimizacion de paquetes jar.
 - ![MySQL](https://img.shields.io/badge/MySQL_8-4479A1?style=for-the-badge&logo=mysql&logoColor=white) Motor relacional transaccional cumpliendo estandares ACID.
 - ![Swagger](https://img.shields.io/badge/Swagger_OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black) Documentacion interactiva de contratos REST.
+
+### Frontend y Experiencia de Usuario
+
+- ![JavaScript](https://img.shields.io/badge/JavaScript_ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) Cliente REST asincrono estructurado.
+- ![HTML5](https://img.shields.io/badge/HTML5_Enterprise-E34F26?style=for-the-badge&logo=html5&logoColor=white) Plantillas semanticas con diseno centrado en productividad.
+- ![CSS3](https://img.shields.io/badge/CSS3_Modular-1572B6?style=for-the-badge&logo=css3&logoColor=white) Estilos arquitecturados en capas (Base, Componentes, Layout y Paginas).
