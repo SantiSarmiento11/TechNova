@@ -163,3 +163,11 @@ El flujo de soporte tecnico opera de la siguiente manera:
 2. Enrutamiento Inteligente: El sistema clasifica y asigna el ticket a la cola del equipo de soporte correspondiente.
 3. Atencion del Agente: El agente cambia el estado a 'En Progreso', anade notas tecnicas y comunica actualizaciones.
 4. Resolucion y Cierre: Se registra la solucion aplicada y el solicitante recibe la notificacion para calificar el servicio.
+
+### Vistas del Frontend Administrativo
+
+- `index.html`: Portal de inicio y seleccion de modulo.
+- `dashboard.html`: Graficas de volumen de tickets, cumplimiento de SLAs y carga de trabajo por tecnico.
+- `tickets.html`: Tabla interactiva con filtros por estado, prioridad, agente y rango de fechas.
+- `ticket-detail.html`: Historial cronologico de comentarios, auditoria de cambios y reasignacion de solicitudes.
+- `reportes.html`: Analitica consolidada y exportacion de metricas de gestion.
