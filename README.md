@@ -132,3 +132,14 @@ cd TechNova
 ```sql
 CREATE DATABASE technova_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
+
+### Compilacion del Backend con Gradle
+
+Ingresar al subdirectorio `project/` y compilar el proyecto:
+```bash
+cd project
+# En Linux / macOS:
+./gradlew clean build -x test
+# En Windows:
+gradlew.bat clean build -x test
+```
