@@ -217,3 +217,9 @@ cd project
 ## Auditoria y Trazabilidad Transaccional
 
 Cada modificacion sobre un ticket registra automaticamente en tabla historica: identificador del usuario, estado anterior, nuevo estado, comentario y marca temporal precisa.
+
+## Consideraciones de Seguridad y Proteccion de Datos
+
+- Almacenamiento seguro de credenciales con funcion hash `BCrypt`.
+- Deshabilitacion de sesiones con estado en servidor (`SessionCreationPolicy.STATELESS`).
+- Cabeceras HTTP de seguridad gestionadas por Spring Security (X-Content-Type-Options, Strict-Transport-Security, X-Frame-Options).
