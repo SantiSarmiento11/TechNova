@@ -106,3 +106,16 @@ Ecosistema de tecnologias enterprise con soporte a largo plazo (LTS) y maximas g
 - Base de Datos: Servidor MySQL 8.0 o superior (puerto local 3306).
 - Memoria RAM: Minimo 4 GB disponibles para la JVM y el demonio de base de datos.
 - Navegador web moderno con soporte para CSS Grid y Fetch API.
+
+### Variables de Entorno y Parametros de Conexion
+
+Configurar el archivo `.env` o las propiedades de aplicacion en `application.properties`:
+
+| Variable | Descripcion | Valor Predeterminado |
+| :--- | :--- | :--- |
+| `SERVER_PORT` | Puerto de escucha HTTP del backend | `8080` |
+| `SPRING_DATASOURCE_URL` | Cadena JDBC de conexion | `jdbc:mysql://localhost:3306/technova_db?useSSL=false&serverTimezone=UTC` |
+| `SPRING_DATASOURCE_USERNAME` | Usuario de base de datos | `root` |
+| `SPRING_DATASOURCE_PASSWORD` | Contrasena de acceso a MySQL | `rootpassword` |
+| `JWT_SECRET` | Clave criptografica HMAC-SHA256 | Cadena Base64 de minimo 256 bits |
+| `JWT_EXPIRATION_MS` | Validez del token en milisegundos | `86400000` (24 horas) |
