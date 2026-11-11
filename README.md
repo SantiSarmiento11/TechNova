@@ -33,3 +33,20 @@ TechNova esta disenado bajo los principios de la Arquitectura Limpia y el patron
    Abstraccion JPA / Hibernate conectada a motor relacional MySQL.
 5. Capa Frontend Desacoplada (`frontend/`):
    Interfaz moderna SPA en JavaScript, HTML5 y CSS estructurado por componentes.
+
+### Diagrama de Flujo Arquitectonico
+
+```mermaid
+flowchart TD
+    A[Usuario / Solicitante / Agente] -->|Peticion HTTP| B[Frontend SPA TechNova]
+    B -->|REST JSON + JWT Bearer| C[Spring Boot REST Controller]
+    C --> D[JwtAuthenticationFilter / SecurityContext]
+    D --> E[Capa de Servicios de Negocio Service Layer]
+    E --> F[Validador de Reglas de Transicion de Ticket]
+    E -->|Spring Data JPA / Hibernate| G[(Base de Datos MySQL)]
+    E --> H[Modulo Analitico de Reportes y SLAs]
+    C --> I[SpringDoc OpenAPI / Swagger UI]
+    G --> E
+    E --> C
+    C --> B
+```
