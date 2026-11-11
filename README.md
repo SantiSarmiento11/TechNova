@@ -94,3 +94,8 @@ Ecosistema de tecnologias enterprise con soporte a largo plazo (LTS) y maximas g
 - ![JavaScript](https://img.shields.io/badge/JavaScript_ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) Cliente REST asincrono estructurado.
 - ![HTML5](https://img.shields.io/badge/HTML5_Enterprise-E34F26?style=for-the-badge&logo=html5&logoColor=white) Plantillas semanticas con diseno centrado en productividad.
 - ![CSS3](https://img.shields.io/badge/CSS3_Modular-1572B6?style=for-the-badge&logo=css3&logoColor=white) Estilos arquitecturados en capas (Base, Componentes, Layout y Paginas).
+
+### Herramientas de Desarrollo y Calidad
+
+- **Project Lombok**: Reduccion de codigo repetitivo (boilerplate) mediante anotaciones Java (`@Data`, `@Builder`, `@RequiredArgsConstructor`).
+- **REST Client (`auth-tests.http`)**: Coleccion interactiva de pruebas de integracion listas para ejecutarse sin requerir herramientas pesadas como Postman.
