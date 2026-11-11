@@ -78,3 +78,13 @@ TechNova/
 ## Stack Tecnologico
 
 Ecosistema de tecnologias enterprise con soporte a largo plazo (LTS) y maximas garantias de seguridad.
+
+### Backend y Persistencia Relacional
+
+- ![Java](https://img.shields.io/badge/Java_21_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white) Entorno tipado seguro con caracteristicas modernas del lenguaje.
+- ![Spring Boot](https://img.shields.io/badge/Spring_Boot_4.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white) Framework lider en desarrollo de servicios micro y macroempresariales.
+- ![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white) Control perimetral de sesiones y autorizacion granular por metodo.
+- ![JWT](https://img.shields.io/badge/JSON_Web_Tokens-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white) Manejo sin estado de autorizaciones mediante JJWT 0.12.6.
+- ![Gradle](https://img.shields.io/badge/Gradle_Build-02303A?style=for-the-badge&logo=gradle&logoColor=white) Construccion declarativa y optimizacion de paquetes jar.
+- ![MySQL](https://img.shields.io/badge/MySQL_8-4479A1?style=for-the-badge&logo=mysql&logoColor=white) Motor relacional transaccional cumpliendo estandares ACID.
+- ![Swagger](https://img.shields.io/badge/Swagger_OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black) Documentacion interactiva de contratos REST.
