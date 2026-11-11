@@ -200,3 +200,9 @@ La aplicacion cuenta con un controlador `@RestControllerAdvice` que captura fall
 - `MethodArgumentNotValidException`: Retorna `400 Bad Request` indicando exactamente los campos con error de validacion.
 - `ResourceNotFoundException`: Retorna `404 Not Found` ante solicitudes con IDs inexistentes.
 - `AccessDeniedException`: Retorna `403 Forbidden` ante intentos de acceso no autorizados.
+
+## Estrategia de Pruebas y Aseguramiento de Calidad
+
+- Pruebas de integracion mediante el archivo `auth-tests.http` validando el ciclo completo de autenticacion y consulta con tokens portadores.
+- Pruebas unitarias de servicios de tickets asegurando cumplimiento de tiempos maximos de respuesta (SLA).
+- Pruebas de repositorios JPA verificando consistencia referencial y aislamiento transaccional.
