@@ -155,3 +155,11 @@ Servicios disponibles inmediatamente:
 - API Backend: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
+## Funcionamiento del Sistema
+
+El flujo de soporte tecnico opera de la siguiente manera:
+1. Creacion de Ticket: El empleado reporta un incidente especificando categoria (Hardware, Software, Redes, Accesos) y prioridad.
+2. Enrutamiento Inteligente: El sistema clasifica y asigna el ticket a la cola del equipo de soporte correspondiente.
+3. Atencion del Agente: El agente cambia el estado a 'En Progreso', anade notas tecnicas y comunica actualizaciones.
+4. Resolucion y Cierre: Se registra la solucion aplicada y el solicitante recibe la notificacion para calificar el servicio.
