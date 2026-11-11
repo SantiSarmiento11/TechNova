@@ -252,3 +252,9 @@ Cada modificacion sobre un ticket registra automaticamente en tabla historica: i
 2. Crear una rama de funcionalidad (`git checkout -b feature/modulo-satisfaccion-cliente`).
 3. Confirmar cambios con Conventional Commits (`git commit -m 'feat: incorporar encuesta de satisfaccion tras cierre de ticket'`).
 4. Publicar la rama y generar un Pull Request sustentado.
+
+## Autoria y Creditos del Proyecto
+
+Proyecto de ingenieria desarrollado y mantenido por [Santiago Sarmiento](https://github.com/SantiSarmiento11).
+
+Consulte el archivo `ERS TechNova.md` para la revision detallada de requerimientos funcionales y no funcionales de la plataforma.
