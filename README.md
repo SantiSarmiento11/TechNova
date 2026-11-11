@@ -119,3 +119,16 @@ Configurar el archivo `.env` o las propiedades de aplicacion en `application.pro
 | `SPRING_DATASOURCE_PASSWORD` | Contrasena de acceso a MySQL | `rootpassword` |
 | `JWT_SECRET` | Clave criptografica HMAC-SHA256 | Cadena Base64 de minimo 256 bits |
 | `JWT_EXPIRATION_MS` | Validez del token en milisegundos | `86400000` (24 horas) |
+
+## Guia de Instalacion y Despliegue Local
+
+1. Clonar el repositorio:
+```bash
+git clone https://github.com/SantiSarmiento11/TechNova.git
+cd TechNova
+```
+
+2. Crear la base de datos en MySQL:
+```sql
+CREATE DATABASE technova_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
