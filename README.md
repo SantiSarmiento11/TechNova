@@ -19,3 +19,17 @@ En entornos corporativos medianos y grandes, la falta de trazabilidad en solicit
 - Seguridad perimetral robusta con autenticacion JWT y control de acceso basado en roles (Admin, Agente Tecnico, Empleado Solicitante).
 - Generacion de metricas operativas, tiempos de primera respuesta y resolucion en modulo de reportes analiticos.
 - Documentacion y pruebas estandarizadas de endpoints mediante archivos `.http` y Swagger UI.
+
+## Arquitectura del Sistema
+
+TechNova esta disenado bajo los principios de la Arquitectura Limpia y el patron por Capas de Spring Boot:
+1. Capa de Controladores REST (`project/src/.../controller`):
+   Expone contratos HTTP, valida datos de entrada con Bean Validation (`@Valid`) y gestiona codigos de estado.
+2. Capa de Seguridad y Filtros (`security/`):
+   Intercepta cabeceras `Authorization: Bearer <token>`, valida firmas JWT y establece el contexto de seguridad.
+3. Capa de Servicios de Negocio (`service/`):
+   Implementa la logica transaccional (`@Transactional`), control de SLAs y reglas de transicion de estados.
+4. Capa de Repositorios y Persistencia (`repository/`):
+   Abstraccion JPA / Hibernate conectada a motor relacional MySQL.
+5. Capa Frontend Desacoplada (`frontend/`):
+   Interfaz moderna SPA en JavaScript, HTML5 y CSS estructurado por componentes.
