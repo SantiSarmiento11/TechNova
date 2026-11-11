@@ -99,3 +99,10 @@ Ecosistema de tecnologias enterprise con soporte a largo plazo (LTS) y maximas g
 
 - **Project Lombok**: Reduccion de codigo repetitivo (boilerplate) mediante anotaciones Java (`@Data`, `@Builder`, `@RequiredArgsConstructor`).
 - **REST Client (`auth-tests.http`)**: Coleccion interactiva de pruebas de integracion listas para ejecutarse sin requerir herramientas pesadas como Postman.
+
+## Requisitos Previos del Sistema
+
+- Java JDK: Version 21 instalada y activa en variables de entorno.
+- Base de Datos: Servidor MySQL 8.0 o superior (puerto local 3306).
+- Memoria RAM: Minimo 4 GB disponibles para la JVM y el demonio de base de datos.
+- Navegador web moderno con soporte para CSS Grid y Fetch API.
