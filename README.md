@@ -193,3 +193,10 @@ Cada transicion de estado valida que el usuario ejecutor posea los permisos pert
 | `GET` | `/api/tickets/{id}` | Detalle completo y conversacion del ticket | Involucrados / Admin |
 | `PUT` | `/api/tickets/{id}/status` | Transicion de estado de resolucion | `ROLE_AGENTE`, `ROLE_ADMIN` |
 | `GET` | `/api/reportes/sla` | Metricas agregadas de rendimiento de SLAs | `ROLE_ADMIN` |
+
+### Gestion Centralizada de Excepciones
+
+La aplicacion cuenta con un controlador `@RestControllerAdvice` que captura fallos estandarizandolos:
+- `MethodArgumentNotValidException`: Retorna `400 Bad Request` indicando exactamente los campos con error de validacion.
+- `ResourceNotFoundException`: Retorna `404 Not Found` ante solicitudes con IDs inexistentes.
+- `AccessDeniedException`: Retorna `403 Forbidden` ante intentos de acceso no autorizados.
