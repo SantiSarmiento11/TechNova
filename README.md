@@ -293,6 +293,3 @@ TechNova-IT-Helpdesk/
 * **Front-end:** Fabio Daniel Capacho Nuñez
 * **API Development and Integration:** Jason Ferney Pallares Duque y Brayan Fonxeca
 * **Organization:** TechNova Solutions
-
-
-<img width="1432" height="922" alt="Captura de pantalla 2026-10-14 185928" src="https://github.com/user-attachments/assets/c3bb16ae-b366-4abc-a71d-eb3e7767ffff" />
